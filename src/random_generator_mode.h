@@ -273,7 +273,7 @@ void playRandomNote() {
   // Check probability
   if (random(100) < randomGen.probability) {
     // Generate random note in scale and octave range
-    Scale& scale = scales[randomGen.scaleType];
+    const Scale& scale = scales[randomGen.scaleType];
     int degree = random(scale.numNotes);
     int octave = random(randomGen.minOctave, randomGen.maxOctave + 1);
     int note = randomGen.rootNote % 12 + scale.intervals[degree] + (octave * 12);

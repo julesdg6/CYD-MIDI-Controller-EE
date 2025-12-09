@@ -9,7 +9,7 @@
 struct Arpeggiator {
   int scaleType = 0; // Scale for chord generation
   int chordType = 0; // 0=Major, 1=Minor, 2=7th
-  int pattern = 0; // 0=Up, 1=Down, 2=UpDown, 3=Random
+  int pattern = 0; // 0=Up, 1=Down, 2=UpDown, 3=Random, 4=Chance
   int octaves = 2;
   int speed = 8; // 16th notes
   int bpm = 120; // BPM control
