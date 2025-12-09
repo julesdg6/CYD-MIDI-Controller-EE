@@ -29,9 +29,9 @@ struct TouchCalibration {
 extern TFT_eSPI tft;
 extern XPT2046_Touchscreen ts;
 
-TouchCalibration calibration;
+static TouchCalibration calibration;
 
-void drawCalibrationCrosshair(int x, int y, uint16_t color) {
+inline void drawCalibrationCrosshair(int x, int y, uint16_t color) {
   int size = 20;
   tft.drawLine(x - size, y, x + size, y, color);
   tft.drawLine(x, y - size, x, y + size, color);
@@ -39,7 +39,7 @@ void drawCalibrationCrosshair(int x, int y, uint16_t color) {
   tft.drawCircle(x, y, 10, color);
 }
 
-bool waitForTouch(int targetX, int targetY, uint16_t &rawX, uint16_t &rawY) {
+inline bool waitForTouch(int targetX, int targetY, uint16_t &rawX, uint16_t &rawY) {
   // Draw instruction
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.drawCentreString("Touch the crosshair", 240, 280, 4);
@@ -76,7 +76,7 @@ bool waitForTouch(int targetX, int targetY, uint16_t &rawX, uint16_t &rawY) {
   return touched;
 }
 
-bool performCalibration() {
+inline bool performCalibration() {
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_YELLOW, TFT_BLACK);
   tft.drawCentreString("TOUCHSCREEN CALIBRATION", 240, 20, 4);
@@ -211,7 +211,7 @@ bool performCalibration() {
   return true;
 }
 
-void saveCalibration() {
+inline void saveCalibration() {
   EEPROM.writeUShort(EEPROM_ADDR_MAGIC, calibration.magic);
   EEPROM.writeUShort(EEPROM_ADDR_X_MIN, calibration.x_min);
   EEPROM.writeUShort(EEPROM_ADDR_X_MAX, calibration.x_max);
@@ -222,7 +222,7 @@ void saveCalibration() {
   EEPROM.commit();
 }
 
-bool loadCalibration() {
+inline bool loadCalibration() {
   uint16_t magic = EEPROM.readUShort(EEPROM_ADDR_MAGIC);
   
   if (magic != CALIBRATION_MAGIC) {
@@ -248,7 +248,7 @@ bool loadCalibration() {
   return true;
 }
 
-void initTouchCalibration() {
+inline void initTouchCalibration() {
   EEPROM.begin(EEPROM_SIZE);
   
   if (!loadCalibration()) {
@@ -277,14 +277,14 @@ void initTouchCalibration() {
   }
 }
 
-void resetCalibration() {
+inline void resetCalibration() {
   EEPROM.writeUShort(EEPROM_ADDR_MAGIC, 0);
   EEPROM.commit();
   Serial.println("Calibration reset! Reboot to recalibrate.");
 }
 
 // Test calibration by showing touch points
-void testCalibration() {
+inline void testCalibration() {
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.drawCentreString("TOUCH TEST MODE", 240, 20, 4);

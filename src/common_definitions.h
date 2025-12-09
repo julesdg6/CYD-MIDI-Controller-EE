@@ -69,10 +69,6 @@ struct Scale {
   int numNotes;
 };
 
-// Global scale definitions
-extern Scale scales[];
-extern const int NUM_SCALES;
-
 // Global objects - declared in main file
 extern TFT_eSPI tft;
 extern XPT2046_Touchscreen ts;
