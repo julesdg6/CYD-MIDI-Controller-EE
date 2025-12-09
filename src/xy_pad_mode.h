@@ -15,10 +15,10 @@ int padX = 0, padY = 0;  // Touch position on pad
 bool xyPadNeedsReset = false;  // Flag to reset static variables
 
 // Pad area dimensions
-#define PAD_X 20
-#define PAD_Y 60
-#define PAD_WIDTH 200
-#define PAD_HEIGHT 140
+#define PAD_X 40
+#define PAD_Y (CONTENT_TOP + 10)
+#define PAD_WIDTH 400
+#define PAD_HEIGHT 220
 #define PAD_CENTER_X (PAD_X + PAD_WIDTH/2)
 #define PAD_CENTER_Y (PAD_Y + PAD_HEIGHT/2)
 
@@ -149,8 +149,8 @@ void drawCCControls() {
 }
 
 void handleXYPadMode() {
-  // Back button
-  if (touch.justPressed && isButtonPressed(10, 10, 50, 25)) {
+  // Back button - larger touch area
+  if (touch.justPressed && isButtonPressed(10, 5, 70, 35)) {
     exitToMenu();
     return;
   }

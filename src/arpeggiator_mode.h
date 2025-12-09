@@ -134,8 +134,8 @@ void drawArpControls() {
 
 void drawPianoKeys() {
   int keyY = 160;
-  int keyWidth = 320 / NUM_PIANO_KEYS;
-  int keyHeight = 45;
+  int keyWidth = SCREEN_WIDTH / NUM_PIANO_KEYS;
+  int keyHeight = 50;
   
   for (int i = 0; i < NUM_PIANO_KEYS; i++) {
     int x = i * keyWidth;
@@ -161,8 +161,8 @@ void drawPianoKeys() {
 }
 
 void handleArpeggiatorMode() {
-  // Back button
-  if (touch.justPressed && isButtonPressed(10, 10, 50, 25)) {
+  // Back button - larger touch area
+  if (touch.justPressed && isButtonPressed(10, 5, 70, 35)) {
     exitToMenu();
     return;
   }
@@ -301,7 +301,19 @@ void updateArpeggiator() {
   if (!arp.isPlaying) return;
   
   unsigned long now = millis();
-  if (now - arp.lastStepTime >= arp.stepInterval) {
+  
+  // Use MIDI clock if available
+  unsigned long effectiveInterval;
+  if (midiClock.isReceiving && midiClock.clockInterval > 0) {
+    // Calculate interval based on arp speed and MIDI clock
+    // MIDI clock is 24 ppqn
+    int clocksPerNote = 24 / arp.speed;  // e.g., 8th note = 12 clocks
+    effectiveInterval = midiClock.clockInterval * clocksPerNote;
+  } else {
+    effectiveInterval = arp.stepInterval;
+  }
+  
+  if (now - arp.lastStepTime >= effectiveInterval) {
     playArpNote();
     arp.lastStepTime = now;
   }

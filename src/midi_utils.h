@@ -3,6 +3,10 @@
 
 #include "common_definitions.h"
 
+// External variables
+extern uint8_t midiChannel;
+extern bool bleEnabled;
+
 // Scale definitions
 Scale scales[] = {
   {"Major", {0, 2, 4, 5, 7, 9, 11, 0}, 7},
@@ -18,7 +22,10 @@ const int NUM_SCALES = 6;
 void sendMIDI(byte cmd, byte note, byte vel) {
   if (!deviceConnected) return;
   
-  midiPacket[2] = cmd;
+  // Apply MIDI channel (channels 1-16 are encoded as 0-15 in the lower nibble)
+  byte channelCmd = (cmd & 0xF0) | ((midiChannel - 1) & 0x0F);
+  
+  midiPacket[2] = channelCmd;
   midiPacket[3] = note;
   midiPacket[4] = vel;
   pCharacteristic->setValue(midiPacket, 5);

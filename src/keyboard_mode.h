@@ -41,23 +41,26 @@ void drawKeyboardMode() {
     }
   }
   
-  // Control layout
-  drawRoundButton(10, 180, 40, 25, "OCT-", THEME_SECONDARY);
-  drawRoundButton(60, 180, 40, 25, "OCT+", THEME_SECONDARY);
-  drawRoundButton(110, 180, 50, 25, "SCALE", THEME_ACCENT);
-  drawRoundButton(170, 180, 40, 25, "KEY-", THEME_WARNING);
-  drawRoundButton(220, 180, 40, 25, "KEY+", THEME_WARNING);
+  // Control layout - larger buttons at bottom
+  int btnY = 240;  // Lower position
+  int btnH = 45;   // Taller buttons (was 25)
+  drawRoundButton(10, btnY, 60, btnH, "OCT-", THEME_SECONDARY);
+  drawRoundButton(80, btnY, 60, btnH, "OCT+", THEME_SECONDARY);
+  drawRoundButton(150, btnY, 80, btnH, "SCALE", THEME_ACCENT);
+  drawRoundButton(240, btnY, 60, btnH, "KEY-", THEME_WARNING);
+  drawRoundButton(310, btnY, 60, btnH, "KEY+", THEME_WARNING);
+  drawRoundButton(380, btnY, 90, btnH, "MENU", THEME_PRIMARY);
   
   // Status display
   tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
-  tft.drawString("Octave " + String(keyboardOctave) + " | " + 
-               scales[keyboardScale].name + " in " + getNoteNameFromMIDI(keyboardKey), 10, 215, 1);
+  tft.drawString("Oct " + String(keyboardOctave) + " | " + 
+               scales[keyboardScale].name + " | Key: " + getNoteNameFromMIDI(keyboardKey), 10, 295, 2);
 }
 
 void drawKeyboardKey(int row, int keyIndex, bool pressed) {
-  int keyWidth = 320 / NUM_KEYS;
-  int keyHeight = 55;  // More vertical space
-  int keyY = 60 + (row * (keyHeight + 3));
+  int keyWidth = SCREEN_WIDTH / NUM_KEYS;
+  int keyHeight = 80;  // Increased from 65 for easier tapping
+  int keyY = CONTENT_TOP + 10 + (row * (keyHeight + 5));
   int x = keyIndex * keyWidth;
   
   uint16_t bgColor = pressed ? THEME_PRIMARY : THEME_SURFACE;
@@ -77,33 +80,33 @@ void drawKeyboardKey(int row, int keyIndex, bool pressed) {
 }
 
 void handleKeyboardMode() {
-  if (touch.justPressed && isButtonPressed(10, 10, 50, 25)) {
+  if (touch.justPressed && isButtonPressed(10, 5, 70, 35)) {
     exitToMenu();
     return;
   }
   
   if (touch.justPressed) {
-    if (isButtonPressed(10, 180, 40, 25)) {
+    if (isButtonPressed(10, 240, 60, 45)) {
       keyboardOctave = max(1, keyboardOctave - 1);
       drawKeyboardMode();
       return;
     }
-    if (isButtonPressed(60, 180, 40, 25)) {
+    if (isButtonPressed(80, 240, 60, 45)) {
       keyboardOctave = min(8, keyboardOctave + 1);
       drawKeyboardMode();
       return;
     }
-    if (isButtonPressed(110, 180, 50, 25)) {
+    if (isButtonPressed(150, 240, 80, 45)) {
       keyboardScale = (keyboardScale + 1) % NUM_SCALES;
       drawKeyboardMode();
       return;
     }
-    if (isButtonPressed(170, 180, 40, 25)) {
+    if (isButtonPressed(240, 240, 60, 45)) {
       keyboardKey = (keyboardKey - 1 + 12) % 12;
       drawKeyboardMode();
       return;
     }
-    if (isButtonPressed(220, 180, 40, 25)) {
+    if (isButtonPressed(310, 240, 60, 45)) {
       keyboardKey = (keyboardKey + 1) % 12;
       drawKeyboardMode();
       return;
@@ -116,11 +119,11 @@ void handleKeyboardMode() {
   
   // Check which key and row is being touched
   if (touch.isPressed) {
-    int keyWidth = 320 / NUM_KEYS;
-    int keyHeight = 55;
+    int keyWidth = SCREEN_WIDTH / NUM_KEYS;
+    int keyHeight = 80;
     
     for (int r = 0; r < NUM_ROWS; r++) {
-      int keyY = 60 + (r * (keyHeight + 3));
+      int keyY = 60 + (r * (keyHeight + 5));
       if (touch.y >= keyY && touch.y < keyY + keyHeight) {
         row = r;
         key = touch.x / keyWidth;

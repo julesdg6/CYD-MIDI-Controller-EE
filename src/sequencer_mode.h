@@ -42,28 +42,41 @@ void initializeSequencerMode() {
 
 void drawSequencerMode() {
   tft.fillScreen(THEME_BG);
-  drawHeader("BEATS", String(bpm) + " BPM");
+  
+  // Show sync status in header
+  String subtitle = String(bpm) + " BPM";
+  if (midiClock.isReceiving) {
+    subtitle += " [SYNC]";
+  }
+  drawHeader("BEATS", subtitle);
   
   drawSequencerGrid();
   
-  // Transport controls - positioned to avoid overlap
-  drawRoundButton(10, 200, 50, 25, sequencerPlaying ? "STOP" : "PLAY", 
+  // Transport controls - larger buttons at bottom
+  int btnY = 245;
+  int btnH = 45;
+  drawRoundButton(10, btnY, 70, btnH, sequencerPlaying ? "STOP" : "PLAY", 
                  sequencerPlaying ? THEME_ERROR : THEME_SUCCESS);
-  drawRoundButton(70, 200, 50, 25, "CLEAR", THEME_WARNING);
-  drawRoundButton(130, 200, 40, 25, "BPM-", THEME_SECONDARY);
-  drawRoundButton(180, 200, 40, 25, "BPM+", THEME_SECONDARY);
+  drawRoundButton(90, btnY, 70, btnH, "CLEAR", THEME_WARNING);
+  drawRoundButton(170, btnY, 60, btnH, "BPM-", THEME_SECONDARY);
+  drawRoundButton(240, btnY, 60, btnH, "BPM+", THEME_SECONDARY);
+  drawRoundButton(380, btnY, 90, btnH, "MENU", THEME_PRIMARY);
   
   // BPM display
-  tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
-  tft.drawString(String(bpm), 240, 207, 2);
+  tft.setTextColor(THEME_TEXT, THEME_BG);
+  if (midiClock.isReceiving) {
+    tft.drawString(String((int)midiClock.calculatedBPM) + " [EXT]", 310, btnY + 15, 2);
+  } else {
+    tft.drawString(String(bpm), 310, btnY + 15, 2);
+  }
 }
 
 void drawSequencerGrid() {
   int gridX = 10;
-  int gridY = 50;
-  int cellW = 15;
-  int cellH = 28;
-  int spacing = 1;
+  int gridY = 55;
+  int cellW = 27;  // Increased from 15 for easier tapping
+  int cellH = 42;  // Increased from 28 for easier tapping
+  int spacing = 2;  // Slightly more spacing
   
   // 808-style track labels and colors
   String trackLabels[] = {"KICK", "SNRE", "HHAT", "OPEN"};
@@ -101,8 +114,8 @@ void drawSequencerGrid() {
 }
 
 void handleSequencerMode() {
-  // Back button
-  if (touch.justPressed && isButtonPressed(10, 10, 50, 25)) {
+  // Back button - larger touch area
+  if (touch.justPressed && isButtonPressed(10, 5, 70, 35)) {
     sequencerPlaying = false;
     exitToMenu();
     return;
@@ -111,7 +124,7 @@ void handleSequencerMode() {
   // Handle touch input
   if (touch.justPressed) {
     // Transport controls
-    if (isButtonPressed(10, 200, 50, 25)) {
+    if (isButtonPressed(10, 245, 60, 45)) {
       sequencerPlaying = !sequencerPlaying;
       if (sequencerPlaying) {
         currentStep = 0;
@@ -121,7 +134,7 @@ void handleSequencerMode() {
       return;
     }
     
-    if (isButtonPressed(70, 200, 50, 25)) {
+    if (isButtonPressed(80, 245, 60, 45)) {
       // Clear all patterns
       for (int t = 0; t < SEQ_TRACKS; t++) {
         for (int s = 0; s < SEQ_STEPS; s++) {
@@ -132,14 +145,14 @@ void handleSequencerMode() {
       return;
     }
     
-    if (isButtonPressed(130, 200, 40, 25)) {
+    if (isButtonPressed(150, 245, 60, 45)) {
       bpm = max(60, bpm - 1);
       stepInterval = 60000 / bpm / 4;
       drawSequencerMode();
       return;
     }
     
-    if (isButtonPressed(180, 200, 40, 25)) {
+    if (isButtonPressed(220, 245, 60, 45)) {
       bpm = min(200, bpm + 1);
       stepInterval = 60000 / bpm / 4;
       drawSequencerMode();
@@ -148,10 +161,10 @@ void handleSequencerMode() {
     
     // Grid interaction
     int gridX = 45;
-    int gridY = 50;
-    int cellW = 15;
-    int cellH = 28;
-    int spacing = 1;
+    int gridY = 55;
+    int cellW = 27;
+    int cellH = 42;
+    int spacing = 2;
     
     for (int track = 0; track < SEQ_TRACKS; track++) {
       for (int step = 0; step < SEQ_STEPS; step++) {
@@ -189,7 +202,24 @@ void updateSequencer() {
     }
   }
   
-  if (now - lastStepTime >= stepInterval) {
+  // Use MIDI clock if available, otherwise use internal timing
+  unsigned long effectiveInterval;
+  if (midiClock.isReceiving && midiClock.clockInterval > 0) {
+    // MIDI clock is 24 ppqn, we want 16th notes (4 per quarter note)
+    // So 6 clock pulses per 16th note
+    effectiveInterval = midiClock.clockInterval * 6;
+    
+    // Auto-start on MIDI start message
+    if (midiClock.isPlaying && !sequencerPlaying) {
+      sequencerPlaying = true;
+      currentStep = 0;
+      lastStepTime = now;
+    }
+  } else {
+    effectiveInterval = stepInterval;
+  }
+  
+  if (now - lastStepTime >= effectiveInterval) {
     playSequencerStep();
     currentStep = (currentStep + 1) % SEQ_STEPS;
     lastStepTime = now;

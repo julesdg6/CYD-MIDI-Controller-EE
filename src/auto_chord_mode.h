@@ -57,21 +57,21 @@ void drawAutoChordMode() {
   drawChordKeys();
   
   // Controls
-  drawRoundButton(10, 180, 40, 25, "OCT-", THEME_SECONDARY);
-  drawRoundButton(60, 180, 40, 25, "OCT+", THEME_SECONDARY);
-  drawRoundButton(110, 180, 60, 25, "SCALE", THEME_ACCENT);
-  drawRoundButton(180, 180, 60, 25, "CLEAR", THEME_ERROR);
+  drawRoundButton(10, 190, 60, 35, "OCT-", THEME_SECONDARY);
+  drawRoundButton(80, 190, 60, 35, "OCT+", THEME_SECONDARY);
+  drawRoundButton(150, 190, 80, 35, "SCALE", THEME_ACCENT);
+  drawRoundButton(240, 190, 80, 35, "CLEAR", THEME_ERROR);
   
   // Status
   tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
-  tft.drawString("Oct " + String(chordOctave), 10, 210, 1);
+  tft.drawString("Oct " + String(chordOctave), 10, 235, 2);
   tft.drawString("Classic piano chords", 110, 210, 1);
 }
 
 void drawChordKeys() {
-  int keyWidth = 320 / 8;
-  int keyHeight = 80;
-  int keyY = 80;
+  int keyWidth = SCREEN_WIDTH / 8;
+  int keyHeight = 100;
+  int keyY = CONTENT_TOP + 20;
   
   uint16_t degreeColors[] = {
     THEME_PRIMARY, THEME_SECONDARY, THEME_ACCENT, THEME_SUCCESS,
@@ -105,43 +105,43 @@ void drawChordKeys() {
 }
 
 void handleAutoChordMode() {
-  // Back button
-  if (touch.justPressed && isButtonPressed(10, 10, 50, 25)) {
+  // Back button - larger touch area
+  if (touch.justPressed && isButtonPressed(10, 5, 70, 35)) {
     exitToMenu();
     return;
   }
   
   if (touch.justPressed) {
     // Octave controls
-    if (isButtonPressed(10, 180, 40, 25)) {
+    if (isButtonPressed(10, 190, 60, 35)) {
       chordOctave = max(2, chordOctave - 1);
       drawAutoChordMode();
       return;
     }
-    if (isButtonPressed(60, 180, 40, 25)) {
+    if (isButtonPressed(80, 190, 60, 35)) {
       chordOctave = min(6, chordOctave + 1);
       drawAutoChordMode();
       return;
     }
     
     // Scale selector
-    if (isButtonPressed(110, 180, 60, 25)) {
+    if (isButtonPressed(150, 190, 80, 35)) {
       chordScale = (chordScale + 1) % NUM_SCALES;
       drawAutoChordMode();
       return;
     }
     
     // Clear all
-    if (isButtonPressed(180, 180, 60, 25)) {
+    if (isButtonPressed(240, 190, 80, 35)) {
       stopAllChords();
       drawChordKeys();
       return;
     }
     
     // Chord keys - only handle on initial press
-    int keyWidth = 320 / 8;
-    int keyHeight = 80;
-    int keyY = 80;
+    int keyWidth = SCREEN_WIDTH / 8;
+    int keyHeight = 100;
+    int keyY = CONTENT_TOP + 20;  // Match drawChordKeys()
     
     for (int i = 0; i < 8; i++) {
       int x = i * keyWidth;

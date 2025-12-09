@@ -168,7 +168,7 @@
 // For NodeMCU - use pin numbers in the form PIN_Dx where Dx is the NodeMCU pin designation
 //#define TFT_CS   PIN_D8  // Chip select control pin D8
 //#define TFT_DC   PIN_D3  // Data Command control pin
-//#define TFT_RST  PIN_D4  // Reset pin (could connect to NodeMCU RST, see next line)
+//#define TFT_RST  PIN_D4  // Reset pin (could connect to RST pin)
 //#define TFT_RST  -1    // Set TFT_RST to -1 if the display RESET is connected to NodeMCU RST or 3.3V
 
 //#define TFT_BL PIN_D1  // LED back-light (only for ST7789 with backlight control pin)
@@ -194,8 +194,8 @@
 // In ESP8266 overlap mode the TFT chip select MUST connect to pin D3
 //#define TFT_CS   PIN_D3
 //#define TFT_DC   PIN_D5  // Data Command control pin
-//#define TFT_RST  PIN_D4  // Reset pin (could connect to NodeMCU RST, see next line)
-//#define TFT_RST  -1  // Set TFT_RST to -1 if the display RESET is connected to NodeMCU RST or 3.3V
+//#define TFT_RST  PIN_D4  // Reset pin (could connect to RST pin)
+//#define TFT_RST  -1  // Set TFT_RST to -1 if the display RESET is connected to NodeMCU RST
 
 
 // ###### EDIT THE PIN NUMBERS IN THE LINES FOLLOWING TO SUIT YOUR ESP32 SETUP   ######
@@ -252,17 +252,17 @@
 //#define TFT_DC   15  // Data Command control pin - must use a pin in the range 0-31
 //#define TFT_RST  32  // Reset pin, toggles on startup
 
-//#define TFT_WR    4  // Write strobe control pin - must use a pin in the range 0-31
-//#define TFT_RD    2  // Read strobe control pin
+// #define TFT_WR    4  // Write strobe control pin - must use a pin in the range 0-31
+// #define TFT_RD    2  // Read strobe control pin
 
-//#define TFT_D0   12  // Must use pins in the range 0-31 for the data bus
-//#define TFT_D1   13  // so a single register write sets/clears all bits.
-//#define TFT_D2   26  // Pins can be randomly assigned, this does not affect
-//#define TFT_D3   25  // TFT screen update performance.
-//#define TFT_D4   17
-//#define TFT_D5   16
-//#define TFT_D6   27
-//#define TFT_D7   14
+// #define TFT_D0   12  // Must use pins in the range 0-31 for the data bus
+// #define TFT_D1   13  // so a single register write sets/clears all bits.
+// #define TFT_D2   26  // Pins can be randomly assigned, this does not affect
+// #define TFT_D3   25  // TFT screen update performance.
+// #define TFT_D4   17
+// #define TFT_D5   16
+// #define TFT_D6   27
+// #define TFT_D7   14
 
 // ######       EDIT THE PINs BELOW TO SUIT YOUR STM32 SPI TFT SETUP        ######
 
@@ -272,10 +272,10 @@
 //#define TFT_MISO PA6
 //#define TFT_SCLK PA5
 
-//#define TFT_SPI_PORT 2 // SPI port 2 maximum clock rate is 27MHz
-//#define TFT_MOSI PB15
-//#define TFT_MISO PB14
-//#define TFT_SCLK PB13
+// #define TFT_SPI_PORT 2 // SPI port 2 maximum clock rate is 27MHz
+// #define TFT_MOSI PB15
+// #define TFT_MISO PB14
+// #define TFT_SCLK PB13
 
 // Can use Ardiuno pin references, arbitrary allocation, TFT_eSPI controls chip select
 //#define TFT_CS   D5 // Chip select control pin to TFT CS
@@ -381,3 +381,4 @@
 // so changing it here has no effect
 
 // #define SUPPORT_TRANSACTIONS
+

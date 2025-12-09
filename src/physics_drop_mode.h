@@ -141,8 +141,8 @@ void drawPlatforms() {
 }
 
 void handlePhysicsDropMode() {
-  // Back button
-  if (touch.justPressed && isButtonPressed(10, 10, 50, 25)) {
+  // Back button - larger touch area
+  if (touch.justPressed && isButtonPressed(10, 5, 70, 35)) {
     exitToMenu();
     return;
   }

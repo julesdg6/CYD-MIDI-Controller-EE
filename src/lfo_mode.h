@@ -53,21 +53,21 @@ void drawLFOMode() {
 }
 
 void drawLFOControls() {
-  int y = 55;
-  int spacing = 30;
+  int y = CONTENT_TOP + 10;
+  int spacing = 35;
   
   // Play/Stop and Rate
-  drawRoundButton(10, y, 60, 25, lfo.isRunning ? "STOP" : "START", 
+  drawRoundButton(15, y, 80, 30, lfo.isRunning ? "STOP" : "START", 
                  lfo.isRunning ? THEME_ERROR : THEME_SUCCESS);
   
   tft.setTextColor(THEME_TEXT, THEME_BG);
-  tft.drawString("Rate:", 80, y + 6, 1);
-  tft.drawString(String(lfo.rate, 1) + "Hz", 115, y + 6, 1);
-  drawRoundButton(160, y, 25, 25, "-", THEME_SECONDARY);
-  drawRoundButton(190, y, 25, 25, "+", THEME_SECONDARY);
+  tft.drawString("Rate:", 110, y + 8, 2);
+  tft.drawString(String(lfo.rate, 1) + "Hz", 180, y + 8, 2);
+  drawRoundButton(260, y, 35, 30, "-", THEME_SECONDARY);
+  drawRoundButton(305, y, 35, 30, "+", THEME_SECONDARY);
   
   // Waveform selector
-  drawRoundButton(230, y, 60, 25, waveNames[lfo.waveform], THEME_ACCENT);
+  drawRoundButton(360, y, 90, 30, waveNames[lfo.waveform], THEME_ACCENT);
   
   y += spacing;
   
@@ -152,8 +152,8 @@ void drawWaveform() {
 }
 
 void handleLFOMode() {
-  // Back button
-  if (touch.justPressed && isButtonPressed(10, 10, 50, 25)) {
+  // Back button - larger touch area
+  if (touch.justPressed && isButtonPressed(10, 5, 70, 35)) {
     lfo.isRunning = false;
     exitToMenu();
     return;
@@ -164,7 +164,7 @@ void handleLFOMode() {
     int spacing = 30;
     
     // Start/Stop
-    if (isButtonPressed(10, y, 60, 25)) {
+    if (isButtonPressed(15, y, 80, 30)) {
       lfo.isRunning = !lfo.isRunning;
       if (lfo.isRunning) {
         lfo.phase = 0.0;
@@ -175,19 +175,19 @@ void handleLFOMode() {
     }
     
     // Rate controls
-    if (isButtonPressed(160, y, 25, 25)) {
+    if (isButtonPressed(260, y, 35, 30)) {
       lfo.rate = max(0.1, lfo.rate - 0.1);
       drawLFOControls();
       return;
     }
-    if (isButtonPressed(190, y, 25, 25)) {
+    if (isButtonPressed(305, y, 35, 30)) {
       lfo.rate = min(10.0, lfo.rate + 0.1);
       drawLFOControls();
       return;
     }
     
     // Waveform selector
-    if (isButtonPressed(230, y, 60, 25)) {
+    if (isButtonPressed(360, y, 90, 30)) {
       lfo.waveform = (lfo.waveform + 1) % 4;
       drawLFOMode();
       return;
@@ -247,8 +247,15 @@ void updateLFO() {
   float deltaTime = (now - lfo.lastUpdate) / 1000.0; // Convert to seconds
   lfo.lastUpdate = now;
   
+  // Optionally sync rate to MIDI clock BPM (rate becomes multiplier)
+  float effectiveRate = lfo.rate;
+  if (midiClock.isReceiving && midiClock.calculatedBPM > 0) {
+    // Sync LFO to clock - use rate as multiplier of BPM/60
+    effectiveRate = (midiClock.calculatedBPM / 60.0) * lfo.rate;
+  }
+  
   // Update phase
-  lfo.phase += 2 * PI * lfo.rate * deltaTime;
+  lfo.phase += 2 * PI * effectiveRate * deltaTime;
   while (lfo.phase >= 2 * PI) {
     lfo.phase -= 2 * PI;
   }

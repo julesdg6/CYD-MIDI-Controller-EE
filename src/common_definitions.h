@@ -17,6 +17,23 @@
 #define THEME_TEXT       0xFFFF
 #define THEME_TEXT_DIM   0x8410
 
+// Screen dimensions
+#define SCREEN_WIDTH     480
+#define SCREEN_HEIGHT    320
+#define CONTENT_TOP      50  // Below header
+
+// MIDI Clock sync
+struct MIDIClockSync {
+  bool isReceiving = false;
+  unsigned long lastClockTime = 0;
+  unsigned long clockInterval = 0;
+  float calculatedBPM = 120.0;
+  int clockCount = 0;
+  bool isPlaying = false;
+  unsigned long lastBPMUpdate = 0;
+};
+extern MIDIClockSync midiClock;
+
 // BLE MIDI UUIDs
 #define SERVICE_UUID        "03b80e5a-ede8-4b33-a751-6ce34ec4c700"
 #define CHARACTERISTIC_UUID "7772e5db-3868-4112-a1a9-f2669d106bf3"

@@ -47,8 +47,8 @@ void drawGridPianoMode() {
   drawHeader("GRID PIANO", "4ths Layout");
   
   // Grid area
-  int cellW = 35;
-  int cellH = 25;
+  int cellW = 45;
+  int cellH = 32;
   int startX = 10;
   int startY = 55;
   int spacing = 2;
@@ -60,12 +60,12 @@ void drawGridPianoMode() {
   }
   
   // Octave controls
-  drawRoundButton(10, 200, 40, 25, "OCT-", THEME_SECONDARY);
-  drawRoundButton(60, 200, 40, 25, "OCT+", THEME_SECONDARY);
+  drawRoundButton(10, 235, 60, 35, "OCT-", THEME_SECONDARY);
+  drawRoundButton(80, 235, 60, 35, "OCT+", THEME_SECONDARY);
   
   // Octave display
   tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
-  tft.drawString("Oct " + String(gridOctave), 110, 207, 1);
+  tft.drawString("Oct " + String(gridOctave), 150, 243, 2);
   
   // Current note display
   if (gridPressedNote != -1) {
@@ -75,8 +75,8 @@ void drawGridPianoMode() {
 }
 
 void drawGridCell(int row, int col, bool pressed) {
-  int cellW = 35;
-  int cellH = 25;
+  int cellW = 45;
+  int cellH = 32;
   int startX = 10;
   int startY = 55;
   int spacing = 2;
@@ -111,21 +111,21 @@ void drawGridCell(int row, int col, bool pressed) {
 }
 
 void handleGridPianoMode() {
-  // Back button
-  if (touch.justPressed && isButtonPressed(10, 10, 50, 25)) {
+  // Back button - larger touch area
+  if (touch.justPressed && isButtonPressed(10, 5, 70, 35)) {
     exitToMenu();
     return;
   }
   
   if (touch.justPressed) {
     // Octave controls
-    if (isButtonPressed(10, 200, 40, 25)) {
+    if (isButtonPressed(10, 235, 60, 35)) {
       gridOctave = max(1, gridOctave - 1);
       calculateGridLayout();
       drawGridPianoMode();
       return;
     }
-    if (isButtonPressed(60, 200, 40, 25)) {
+    if (isButtonPressed(80, 235, 60, 35)) {
       gridOctave = min(6, gridOctave + 1);
       calculateGridLayout();
       drawGridPianoMode();
@@ -134,8 +134,8 @@ void handleGridPianoMode() {
   }
   
   // Grid interaction
-  int cellW = 35;
-  int cellH = 25;
+  int cellW = 45;
+  int cellH = 32;
   int startX = 10;
   int startY = 55;
   int spacing = 2;
