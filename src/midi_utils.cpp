@@ -11,3 +11,23 @@ const Scale scales[] = {
 };
 
 const int NUM_SCALES = 6;
+
+// Function implementations
+
+int getNoteInScale(int scaleIndex, int degree, int octave) {
+  if (scaleIndex >= NUM_SCALES) return 60;
+  
+  // If degree exceeds scale notes, wrap to next octave
+  int actualDegree = degree % scales[scaleIndex].numNotes;
+  int octaveOffset = degree / scales[scaleIndex].numNotes;
+  
+  int rootNote = 60; // C4
+  return rootNote + scales[scaleIndex].intervals[actualDegree] + ((octave - 4 + octaveOffset) * 12);
+}
+
+String getNoteNameFromMIDI(int midiNote) {
+  String noteNames[] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+  int noteIndex = midiNote % 12;
+  int octave = (midiNote / 12) - 1;
+  return noteNames[noteIndex] + String(octave);
+}
