@@ -44,7 +44,7 @@ void calculateGridLayout() {
 
 void drawGridPianoMode() {
   tft.fillScreen(THEME_BG);
-  drawHeader("GRID PIANO", "4ths Layout");
+  drawModuleHeader("GRID PIANO");
   
   // Grid area
   int cellW = 45;

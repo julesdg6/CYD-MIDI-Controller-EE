@@ -10,6 +10,12 @@ void updateStatus();
 bool isButtonPressed(int x, int y, int w, int h);
 void drawRoundButton(int x, int y, int w, int h, String text, uint16_t color, bool pressed = false);
 void drawHeader(String title, String subtitle = "");
+void drawModuleHeader(String title, bool showBackButton = true);
+void drawSettingsIcon(int x, int y);
+void drawBackIcon(int x, int y);
+void drawBluetoothIcon(int x, int y);
+void drawSDCardIcon(int x, int y);
+void drawBPMIndicator(int x, int y);
 void exitToMenu();
 
 // UI implementations
@@ -109,6 +115,108 @@ inline void drawHeader(String title, String subtitle) {
 
 inline void updateStatus() {
   // Status bar removed - no more BLE connection alerts on every screen
+}
+
+inline void drawSettingsIcon(int x, int y) {
+  // Draw a cog/gear icon
+  uint16_t color = THEME_PRIMARY;
+  tft.fillCircle(x + 10, y + 10, 8, color);
+  tft.fillCircle(x + 10, y + 10, 4, THEME_SURFACE);
+  // Cog teeth
+  for (int i = 0; i < 8; i++) {
+    float angle = i * PI / 4;
+    int x1 = x + 10 + cos(angle) * 6;
+    int y1 = y + 10 + sin(angle) * 6;
+    int x2 = x + 10 + cos(angle) * 10;
+    int y2 = y + 10 + sin(angle) * 10;
+    tft.drawLine(x1, y1, x2, y2, color);
+  }
+}
+
+inline void drawBackIcon(int x, int y) {
+  // Draw a back arrow icon
+  uint16_t color = THEME_ERROR;
+  int cx = x + 10;
+  int cy = y + 10;
+  
+  // Arrow pointing left
+  tft.fillTriangle(cx - 5, cy, cx + 3, cy - 6, cx + 3, cy + 6, color);
+  tft.fillRect(cx + 2, cy - 2, 8, 4, color);
+}
+
+inline void drawBluetoothIcon(int x, int y) {
+  extern bool deviceConnected;
+  uint16_t color = deviceConnected ? 0x001F : THEME_TEXT_DIM;
+  int cx = x + 10;
+  int cy = y + 10;
+  
+  // Vertical line
+  tft.fillRect(cx, cy - 8, 2, 17, color);
+  
+  // Upper triangle
+  tft.drawLine(cx, cy - 8, cx + 7, cy - 1, color);
+  tft.drawLine(cx, cy - 8, cx + 8, cy - 1, color);
+  tft.drawLine(cx + 7, cy - 1, cx, cy, color);
+  tft.drawLine(cx + 8, cy - 1, cx, cy, color);
+  
+  // Lower triangle
+  tft.drawLine(cx, cy, cx + 7, cy + 8, color);
+  tft.drawLine(cx, cy, cx + 8, cy + 8, color);
+  tft.drawLine(cx, cy + 8, cx + 7, cy + 8, color);
+  tft.drawLine(cx, cy + 8, cx + 8, cy + 8, color);
+  
+  // Cross lines
+  tft.drawLine(cx - 5, cy - 5, cx + 7, cy + 5, color);
+  tft.drawLine(cx - 5, cy + 5, cx + 7, cy - 5, color);
+}
+
+inline void drawSDCardIcon(int x, int y) {
+  extern bool sdCardAvailable;
+  uint16_t color = sdCardAvailable ? THEME_SUCCESS : THEME_TEXT_DIM;
+  tft.fillRoundRect(x, y, 20, 20, 2, color);
+  tft.fillRect(x + 2, y + 2, 16, 6, THEME_SURFACE);
+  tft.fillRect(x + 4, y + 12, 12, 6, THEME_BG);
+  tft.fillRect(x + 16, y + 4, 2, 4, THEME_BG);
+}
+
+inline void drawBPMIndicator(int x, int y) {
+  extern GlobalState globalState;
+  extern MIDIClockSync midiClock;
+  
+  // Use MIDI clock BPM if receiving, otherwise use global BPM
+  float displayBPM = midiClock.isReceiving ? midiClock.calculatedBPM : globalState.bpm;
+  String bpmText = String((int)displayBPM);
+  
+  if (midiClock.isReceiving) {
+    bpmText += " [EXT]";
+    tft.setTextColor(THEME_WARNING, THEME_SURFACE);
+  } else {
+    tft.setTextColor(THEME_TEXT_DIM, THEME_SURFACE);
+  }
+  
+  tft.drawString(bpmText, x, y, 2);
+}
+
+inline void drawModuleHeader(String title, bool showBackButton) {
+  // Draw header bar
+  tft.fillRect(0, 0, 480, 45, THEME_SURFACE);
+  tft.drawFastHLine(0, 45, 480, THEME_PRIMARY);
+  
+  // Draw title centered
+  tft.setTextColor(THEME_TEXT, THEME_SURFACE);
+  tft.drawCentreString(title, 240, 13, 4);
+  
+  // Draw left icon (back button or settings on main menu)
+  if (showBackButton) {
+    drawBackIcon(8, 8);
+  } else {
+    drawSettingsIcon(8, 8);
+  }
+  
+  // Draw right-side status icons
+  drawBluetoothIcon(410, 8);  // Bluetooth at far right
+  drawSDCardIcon(380, 10);     // SD card next to Bluetooth
+  drawBPMIndicator(300, 17);   // BPM indicator on the left side
 }
 
 #endif

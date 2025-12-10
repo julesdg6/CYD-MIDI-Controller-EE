@@ -206,60 +206,7 @@ class MIDICharacteristicCallbacks: public BLECharacteristicCallbacks {
     }
 };
 
-void drawSettingsIcon(int x, int y) {
-  // Draw a cog/gear icon
-  uint16_t color = THEME_PRIMARY;
-  tft.fillCircle(x + 10, y + 10, 8, color);
-  tft.fillCircle(x + 10, y + 10, 4, THEME_SURFACE);
-  // Cog teeth
-  for (int i = 0; i < 8; i++) {
-    float angle = i * PI / 4;
-    int x1 = x + 10 + cos(angle) * 6;
-    int y1 = y + 10 + sin(angle) * 6;
-    int x2 = x + 10 + cos(angle) * 10;
-    int y2 = y + 10 + sin(angle) * 10;
-    tft.drawLine(x1, y1, x2, y2, color);
-  }
-}
-
-void drawSDCardIcon(int x, int y) {
-  uint16_t color = sdCardAvailable ? THEME_SUCCESS : THEME_TEXT_DIM;
-  tft.fillRoundRect(x, y, 20, 20, 2, color);
-  tft.fillRect(x + 2, y + 2, 16, 6, THEME_SURFACE);
-  tft.fillRect(x + 4, y + 12, 12, 6, THEME_BG);
-  tft.fillRect(x + 16, y + 4, 2, 4, THEME_BG);
-  if (!sdCardAvailable) {
-    tft.setTextColor(THEME_ERROR, THEME_SURFACE);
-    tft.drawString("NO", x - 15, y + 6, 1);
-  }
-}
-
-void drawBluetoothIcon(int x, int y) {
-  // Classic Bluetooth icon - blue when connected, gray when disconnected
-  uint16_t color = deviceConnected ? 0x001F : THEME_TEXT_DIM; // Blue or gray
-  int cx = x + 10;
-  int cy = y + 10;
-  
-  // Classic Bluetooth symbol shape (more accurate)
-  // Vertical line
-  tft.fillRect(cx, cy - 8, 2, 17, color);
-  
-  // Upper triangle
-  tft.drawLine(cx, cy - 8, cx + 7, cy - 1, color);
-  tft.drawLine(cx, cy - 8, cx + 8, cy - 1, color);
-  tft.drawLine(cx + 7, cy - 1, cx, cy, color);
-  tft.drawLine(cx + 8, cy - 1, cx, cy, color);
-  
-  // Lower triangle
-  tft.drawLine(cx, cy, cx + 7, cy + 8, color);
-  tft.drawLine(cx, cy, cx + 8, cy + 8, color);
-  tft.drawLine(cx, cy + 8, cx + 7, cy + 8, color);
-  tft.drawLine(cx, cy + 8, cx + 8, cy + 8, color);
-  
-  // Cross lines
-  tft.drawLine(cx - 5, cy - 5, cx + 7, cy + 5, color);
-  tft.drawLine(cx - 5, cy + 5, cx + 7, cy - 5, color);
-}
+// Icon drawing functions moved to ui_elements.h for consistency
 
 void initSDCard() {
   Serial.println("\n=== SD Card Initialization ===");
@@ -918,32 +865,12 @@ void loop() {
 void drawMenu() {
   tft.fillScreen(THEME_BG);
   
-  // Header
-  tft.fillRect(0, 0, 480, 50, THEME_SURFACE);
-  tft.drawFastHLine(0, 50, 480, THEME_PRIMARY);
-  tft.setTextColor(THEME_PRIMARY, THEME_SURFACE);
+  // Use unified header (settings icon, not back button)
+  drawModuleHeader("MIDI CONTROLLER", false);
   
-  // Title closer to left (moved from center to make space)
-  tft.drawString("MIDI CONTROLLER", 50, 12, 4);
-  
-  // Show BPM if receiving MIDI clock
-  if (midiClock.isReceiving) {
-    tft.setTextColor(THEME_SUCCESS, THEME_SURFACE);
-    String bpmText = String((int)midiClock.calculatedBPM) + " BPM";
-    tft.drawString(bpmText, 290, 17, 4);
-  }
-  
-  tft.setTextColor(THEME_TEXT_DIM, THEME_SURFACE);
-  tft.drawString("Cheap Yellow Display", 50, 32, 2);
-  
-  // Settings cog icon in top left (matches touch area at 10,10)
-  drawSettingsIcon(10, 10);
-  
-  // Bluetooth icon next to SD card
-  drawBluetoothIcon(410, 10);
-  
-  // SD Card icon in top right
-  drawSDCardIcon(445, 10);
+  // Subtitle under header
+  tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
+  tft.drawCentreString("Cheap Yellow Display", 240, 52, 2);
   
   // Dynamic grid layout - 5 icons per row with bigger graphics
   int iconSize = 85;   // Button size stays the same

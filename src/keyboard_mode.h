@@ -32,7 +32,12 @@ void initializeKeyboardMode() {
 
 void drawKeyboardMode() {
   tft.fillScreen(THEME_BG);
-  drawHeader("KEYS", scales[keyboardScale].name + " Key " + getNoteNameFromMIDI(keyboardKey));
+  drawModuleHeader("KEYS");
+  
+  // Show scale and key info under header
+  tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
+  String info = scales[keyboardScale].name + " - Key " + getNoteNameFromMIDI(keyboardKey);
+  tft.drawCentreString(info, 240, 52, 2);
   
   // Draw keys - two rows
   for (int row = 0; row < NUM_ROWS; row++) {

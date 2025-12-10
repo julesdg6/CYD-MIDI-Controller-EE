@@ -42,7 +42,7 @@ void initializeXYPadMode() {
 
 void drawXYPadMode() {
   tft.fillScreen(THEME_BG);
-  drawHeader("XY PAD", "Touch Control");
+  drawModuleHeader("XY PAD");
   
   // Signal that static variables should be reset
   xyPadNeedsReset = true;

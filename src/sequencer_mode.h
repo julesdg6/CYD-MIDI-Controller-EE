@@ -43,12 +43,8 @@ void initializeSequencerMode() {
 void drawSequencerMode() {
   tft.fillScreen(THEME_BG);
   
-  // Show sync status in header
-  String subtitle = String(bpm) + " BPM";
-  if (midiClock.isReceiving) {
-    subtitle += " [SYNC]";
-  }
-  drawHeader("BEATS", subtitle);
+  // Use unified header with status icons
+  drawModuleHeader("BEATS");
   
   drawSequencerGrid();
   
