@@ -152,8 +152,8 @@ All boards available for ~$15 from AliExpress/Amazon
 1. Install [PlatformIO](https://platformio.org/)
 2. Clone this repo:
    ```bash
-   git clone https://github.com/julesdg6/CYD-MIDI-Controller.git
-   cd CYD-MIDI-Controller
+   git clone https://github.com/julesdg6/CYD-MIDI-Controller-EE.git
+   cd CYD-MIDI-Controller-EE
    ```
 3. Open in VS Code with PlatformIO extension
 4. Select your board in `platformio.ini` (default: `cyd35`)
@@ -242,20 +242,16 @@ src/
 └── *_mode.h                  # Individual mode implementations
 ```
 
+## Connecting to Your DAW
+
+1. Pair "CYD MIDI" via Bluetooth
+2. Select as MIDI input in your DAW (e.g., Ableton Live, FL Studio, Logic Pro)
+3. All MIDI modes send on the configured channel (default: Channel 1)
+4. Use Settings menu to change MIDI channel if needed
+
 ## Contributing
 
 Contributions welcome! This project has diverged significantly from the original, focusing on improved UX for capacitive touchscreens.
-
-## Licenseting to Your DAW
-1. Pair "CYD MIDI" via Bluetooth
-2. Select as MIDI input in your DAW
-
-## Troubleshooting
-
-- **Upload Speed**: Lower it to `115200` if the sketch isn't uploading
-- **Blank screen**: Check TFT_eSPI pin configuration
-- **No touch**: Verify touchscreen library installation
-- **No Bluetooth**: Restart device and re-pair
 
 ## License
 
