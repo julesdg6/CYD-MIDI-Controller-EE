@@ -153,7 +153,7 @@ void drawWaveform() {
 
 void handleLFOMode() {
   // Back button - larger touch area
-  if (touch.justPressed && isButtonPressed(10, 5, 70, 35)) {
+  if (touch.justPressed && isButtonPressed(BACK_BTN_X, BACK_BTN_Y, BTN_BACK_W, BTN_BACK_H)) {
     lfo.isRunning = false;
     exitToMenu();
     return;

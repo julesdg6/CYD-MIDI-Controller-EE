@@ -98,18 +98,18 @@ inline void drawRoundButton(int x, int y, int w, int h, String text, uint16_t co
 }
 
 inline void drawHeader(String title, String subtitle) {
-  tft.fillRect(0, 0, SCREEN_WIDTH, 45, THEME_SURFACE);
-  tft.drawFastHLine(0, 45, SCREEN_WIDTH, THEME_PRIMARY);
+  tft.fillRect(0, 0, SCREEN_WIDTH, SCALED_H(45), THEME_SURFACE);
+  tft.drawFastHLine(0, SCALED_H(45), SCREEN_WIDTH, THEME_PRIMARY);
   
   tft.setTextColor(THEME_TEXT, THEME_SURFACE);
-  tft.drawCentreString(title, SCREEN_WIDTH/2, 8, 4);
+  tft.drawCentreString(title, SCREEN_WIDTH/2, SCALED_H(8), 4);
   
   if (subtitle.length() > 0) {
     tft.setTextColor(THEME_TEXT_DIM, THEME_SURFACE);
-    tft.drawCentreString(subtitle, SCREEN_WIDTH/2, 28, 2);
+    tft.drawCentreString(subtitle, SCREEN_WIDTH/2, SCALED_H(28), 2);
   }
   
-  drawRoundButton(10, 5, 70, 35, "BACK", THEME_ERROR);
+  drawRoundButton(SCALED_W(10), SCALED_H(5), BTN_BACK_W, BTN_BACK_H, "BACK", THEME_ERROR);
 }
 
 inline void drawSettingsIcon(int x, int y) {
@@ -193,24 +193,24 @@ inline void drawBPMIndicator(int x, int y) {
 
 inline void drawModuleHeader(String title, bool showBackButton) {
   // Draw header bar
-  tft.fillRect(0, 0, SCREEN_WIDTH, 45, THEME_SURFACE);
-  tft.drawFastHLine(0, 45, SCREEN_WIDTH, THEME_PRIMARY);
+  tft.fillRect(0, 0, SCREEN_WIDTH, SCALED_H(45), THEME_SURFACE);
+  tft.drawFastHLine(0, SCALED_H(45), SCREEN_WIDTH, THEME_PRIMARY);
   
   // Draw title centered
   tft.setTextColor(THEME_TEXT, THEME_SURFACE);
-  tft.drawCentreString(title, SCREEN_WIDTH/2, 13, 4);
+  tft.drawCentreString(title, SCREEN_WIDTH/2, SCALED_H(13), 4);
   
   // Draw left icon (back button or settings on main menu)
   if (showBackButton) {
-    drawBackIcon(8, 8);
+    drawBackIcon(SCALED_W(8), SCALED_H(8));
   } else {
-    drawSettingsIcon(8, 8);
+    drawSettingsIcon(SCALED_W(8), SCALED_H(8));
   }
   
   // Draw right-side status icons
-  drawBluetoothIcon(410, 8);  // Bluetooth at far right
-  drawSDCardIcon(380, 10);     // SD card next to Bluetooth
-  drawBPMIndicator(300, 17);   // BPM indicator on the left side
+  drawBluetoothIcon(SCREEN_WIDTH - SCALED_W(70), SCALED_H(8));  // Bluetooth at far right
+  drawSDCardIcon(SCREEN_WIDTH - SCALED_W(100), SCALED_H(10));     // SD card next to Bluetooth
+  drawBPMIndicator(SCREEN_WIDTH - SCALED_W(180), SCALED_H(17));   // BPM indicator on the left side
 }
 
 #endif

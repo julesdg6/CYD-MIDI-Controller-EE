@@ -574,22 +574,23 @@ void cycleModesForScreenshots() {
 void showSettingsMenu(bool interactive) {
   tft.fillScreen(THEME_BG);
   tft.setTextColor(THEME_PRIMARY, THEME_BG);
-  tft.drawCentreString("SETTINGS", SCREEN_WIDTH/2, 12, 4);
+  tft.drawCentreString("SETTINGS", SCREEN_WIDTH/2, SCALED_H(12), 4);
   
-  int btnY = 50;
-  int btnH = 45;  // Good size for touch without being too large
-  int btnW = 440;
-  int btnX = 20;
-  int spacing = 6;
+  int btnY = SCALED_H(50);
+  int btnH = BTN_MEDIUM_H;  // Good size for touch without being too large
+  int btnW = SCALED_W(440);
+  int btnX = SCALED_W(20);
+  int spacing = SCALED_H(6);
   
   // Calibrate Touch button
   drawRoundButton(btnX, btnY, btnW, btnH, "CALIBRATE TOUCH", THEME_PRIMARY);
   btnY += btnH + spacing;
   
   // MIDI Channel setting
-  drawRoundButton(btnX, btnY, 140, btnH, "CH -", THEME_WARNING);
-  drawRoundButton(btnX + 150, btnY, 140, btnH, "CH: " + String(midiChannel), THEME_SUCCESS);
-  drawRoundButton(btnX + 300, btnY, 140, btnH, "CH +", THEME_WARNING);
+  int channelBtnW = SCALED_W(140);
+  drawRoundButton(btnX, btnY, channelBtnW, btnH, "CH -", THEME_WARNING);
+  drawRoundButton(btnX + SCALED_W(150), btnY, channelBtnW, btnH, "CH: " + String(midiChannel), THEME_SUCCESS);
+  drawRoundButton(btnX + SCALED_W(300), btnY, channelBtnW, btnH, "CH +", THEME_WARNING);
   btnY += btnH + spacing;
   
   // BLE Enable/Disable
@@ -603,7 +604,7 @@ void showSettingsMenu(bool interactive) {
   btnY += btnH + spacing;
   
   // Back button - centered at bottom
-  drawRoundButton(180, 270, 120, 45, "BACK", THEME_PRIMARY);
+  drawRoundButton((SCREEN_WIDTH - SCALED_W(120)) / 2, SCALED_H(270), SCALED_W(120), BTN_MEDIUM_H, "BACK", THEME_PRIMARY);
   
   // If not interactive (screenshot mode), just return
   if (!interactive) return;
@@ -616,8 +617,9 @@ void showSettingsMenu(bool interactive) {
       continue;
     }
     
-    // Calibrate Touch (y=50)
-    if (isButtonPressed(btnX, 50, btnW, btnH)) {
+    // Calibrate Touch
+    int currentY = SCALED_H(50);
+    if (isButtonPressed(btnX, currentY, btnW, btnH)) {
       resetCalibration();
       if (performCalibration()) {
         saveCalibration();
@@ -626,22 +628,24 @@ void showSettingsMenu(bool interactive) {
       return;
     }
     
-    // MIDI Channel - (y=101: 50+45+6)
-    if (isButtonPressed(btnX, 101, 140, btnH)) {
+    // MIDI Channel -
+    currentY = SCALED_H(50) + btnH + spacing;
+    if (isButtonPressed(btnX, currentY, SCALED_W(140), btnH)) {
       if (midiChannel > 1) midiChannel--;
       showSettingsMenu();
       return;
     }
     
-    // MIDI Channel + (y=101: same row)
-    if (isButtonPressed(btnX + 300, 101, 140, btnH)) {
+    // MIDI Channel +
+    if (isButtonPressed(btnX + SCALED_W(300), currentY, SCALED_W(140), btnH)) {
       if (midiChannel < 16) midiChannel++;
       showSettingsMenu();
       return;
     }
     
-    // BLE Toggle (y=152: 101+45+6)
-    if (isButtonPressed(btnX, 152, btnW, btnH)) {
+    // BLE Toggle
+    currentY += btnH + spacing;
+    if (isButtonPressed(btnX, currentY, btnW, btnH)) {
       bleEnabled = !bleEnabled;
       if (bleEnabled) {
         BLEDevice::startAdvertising();
@@ -654,15 +658,16 @@ void showSettingsMenu(bool interactive) {
       return;
     }
     
-    // Screenshot Mode Cycling (y=203: 152+45+6)
-    if (isButtonPressed(btnX, 203, btnW, btnH)) {
+    // Screenshot Mode Cycling
+    currentY += btnH + spacing;
+    if (isButtonPressed(btnX, currentY, btnW, btnH)) {
       cycleModesForScreenshots();
       showSettingsMenu();
       return;
     }
     
     // Back button
-    if (isButtonPressed(180, 270, 120, 45)) {
+    if (isButtonPressed((SCREEN_WIDTH - SCALED_W(120)) / 2, SCALED_H(270), SCALED_W(120), BTN_MEDIUM_H)) {
       drawMenu();
       return;
     }
@@ -886,15 +891,15 @@ void drawMenu() {
   
   // Subtitle under header
   tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
-  tft.drawCentreString("Cheap Yellow Display", SCREEN_WIDTH/2, 52, 2);
+  tft.drawCentreString("Cheap Yellow Display", SCREEN_WIDTH/2, SCALED_H(52), 2);
   
   // Dynamic grid layout - 5 icons per row with bigger graphics
-  int iconSize = 85;   // Button size stays the same
-  int spacing = 5;     // Reduced spacing between columns
-  int rowSpacing = 2;  // Minimal spacing between rows to fit all 3 rows
+  int iconSize = SCALED_W(85);   // Button size scales with screen
+  int spacing = SCALED_W(5);     // Reduced spacing between columns
+  int rowSpacing = SCALED_H(2);  // Minimal spacing between rows to fit all 3 rows
   int cols = 5;        // 5 icons per row
   int startX = (SCREEN_WIDTH - (cols * iconSize + (cols-1) * spacing)) / 2;
-  int startY = 58;     // Start slightly higher to fit 3 rows
+  int startY = SCALED_H(58);     // Start slightly higher to fit 3 rows
   
   // Draw all apps (now includes TB3PO as 11th app)
   for (int i = 0; i < numApps; i++) {
@@ -1139,29 +1144,28 @@ void handleMenuTouch() {
   Serial.printf("Menu touch at: (%d,%d)\n", touch.x, touch.y);
   
   // Check settings icon touch (top left) - extra large touch area for easier access
-  if (isButtonPressed(5, 5, 50, 50)) {
+  if (isButtonPressed(SCALED_W(5), SCALED_H(5), SCALED_W(50), SCALED_H(50))) {
     Serial.println("Settings icon tapped!");
     showSettingsMenu();
     return;
   }
   
   // Check Bluetooth icon touch - larger touch area
-  if (isButtonPressed(405, 10, 35, 35)) {
+  if (isButtonPressed(SCREEN_WIDTH - SCALED_W(75), SCALED_H(10), SCALED_W(35), SCALED_H(35))) {
     // Show BLE status
     tft.fillScreen(THEME_BG);
     tft.setTextColor(THEME_PRIMARY, THEME_BG);
-    tft.drawCentreString("BLUETOOTH STATUS", SCREEN_WIDTH/2, 60, 4);
+    tft.drawCentreString("BLUETOOTH STATUS", SCREEN_WIDTH/2, SCALED_H(60), 4);
     tft.setTextColor(THEME_TEXT, THEME_BG);
-    tft.drawCentreString(globalState.bleConnected ? "Connected" : "Waiting for connection", SCREEN_WIDTH/2, 120, 2);
+    tft.drawCentreString(globalState.bleConnected ? "Connected" : "Waiting for connection", SCREEN_WIDTH/2, SCALED_H(120), 2);
     tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
-    tft.drawCentreString("Device: CYD MIDI", SCREEN_WIDTH/2, 160, 2);
+    tft.drawCentreString("Device: CYD MIDI", SCREEN_WIDTH/2, SCALED_H(160), 2);
     String mac = BLEDevice::getAddress().toString().c_str();
-    tft.drawCentreString("MAC: " + mac, SCREEN_WIDTH/2, 190, 2);
-    int backBtnX = (SCREEN_WIDTH - 100) / 2;
-    drawRoundButton(backBtnX, SCREEN_HEIGHT - 80, 100, 35, "BACK", THEME_PRIMARY);
+    tft.drawCentreString("MAC: " + mac, SCREEN_WIDTH/2, SCALED_H(190), 2);
+    drawRoundButton((SCREEN_WIDTH - BTN_LARGE_W) / 2, SCALED_H(240), BTN_LARGE_W, BTN_SMALL_H, "BACK", THEME_PRIMARY);
     while (true) {
       updateTouch();
-      if (touch.justPressed && isButtonPressed(backBtnX, SCREEN_HEIGHT - 80, 100, 35)) {
+      if (touch.justPressed && isButtonPressed((SCREEN_WIDTH - BTN_LARGE_W) / 2, SCALED_H(240), BTN_LARGE_W, BTN_SMALL_H)) {
         drawMenu();
         return;
       }
@@ -1170,17 +1174,17 @@ void handleMenuTouch() {
   }
   
   // Check SD icon touch (top right) - larger touch area
-  if (isButtonPressed(440, 10, 35, 35)) {
+  if (isButtonPressed(SCREEN_WIDTH - SCALED_W(40), SCALED_H(10), SCALED_W(35), SCALED_H(35))) {
     showSDCardInfo();
     return;
   }
   
-  int iconSize = 85;  // Match drawMenu icon size (updated for better touch)
-  int spacing = 5;    // Match drawMenu spacing (reduced)
-  int rowSpacing = 2; // Match drawMenu row spacing
+  int iconSize = SCALED_W(85);  // Match drawMenu icon size (updated for better touch)
+  int spacing = SCALED_W(5);    // Match drawMenu spacing (reduced)
+  int rowSpacing = SCALED_H(2); // Match drawMenu row spacing
   int cols = 5;       // 5 icons per row
   int startX = (SCREEN_WIDTH - (cols * iconSize + (cols-1) * spacing)) / 2;
-  int startY = 58;    // Match drawMenu startY
+  int startY = SCALED_H(58);    // Match drawMenu startY
   
   for (int i = 0; i < numApps; i++) {
     int col = i % cols;

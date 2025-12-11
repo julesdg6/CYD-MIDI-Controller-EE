@@ -17,45 +17,61 @@
 #define THEME_TEXT       0xFFFF
 #define THEME_TEXT_DIM   0x8410
 
-// Screen dimensions - use TFT_eSPI's configured dimensions
-// TFT_WIDTH and TFT_HEIGHT are set via platformio.ini build flags
-// Note: Values are swapped because the TFT is rotated 90° for landscape orientation
-// (e.g., a 240x320 portrait TFT becomes 320x240 in landscape)
+// Screen dimensions - use TFT library defines if available, otherwise default to 480×320
+// Note: TFT_WIDTH/HEIGHT are portrait orientation, we use landscape (swap them)
 #ifndef SCREEN_WIDTH
   #ifdef TFT_HEIGHT
-    #define SCREEN_WIDTH TFT_HEIGHT  // TFT rotated: height becomes width
+    #define SCREEN_WIDTH TFT_HEIGHT
   #else
-    #define SCREEN_WIDTH 480  // Default fallback for 3.5" CYD
+    #define SCREEN_WIDTH 480
   #endif
 #endif
 
 #ifndef SCREEN_HEIGHT
   #ifdef TFT_WIDTH
-    #define SCREEN_HEIGHT TFT_WIDTH  // TFT rotated: width becomes height
+    #define SCREEN_HEIGHT TFT_WIDTH
   #else
-    #define SCREEN_HEIGHT 320  // Default fallback for 3.5" CYD
+    #define SCREEN_HEIGHT 320
   #endif
-// Screen dimensions - automatically derived from TFT_WIDTH and TFT_HEIGHT
-// These are defined in platformio.ini for each board variant:
-//   - CYD 3.5" (ILI9488): TFT_WIDTH=320, TFT_HEIGHT=480 → Landscape: 480×320
-//   - CYD 2.8" (ILI9341): TFT_WIDTH=240, TFT_HEIGHT=320 → Landscape: 320×240
-//   - CYD 2.4" (ILI9341): TFT_WIDTH=240, TFT_HEIGHT=320 → Landscape: 320×240
-// All UI elements should use SCREEN_WIDTH and SCREEN_HEIGHT for proper scaling
-#if !defined(TFT_WIDTH) || !defined(TFT_HEIGHT)
-  #error "TFT_WIDTH and TFT_HEIGHT must be defined in build flags (platformio.ini)"
-#endif
-
-// Convert portrait dimensions to landscape (swap if needed)
-// TFT_eSPI defines WIDTH and HEIGHT in portrait mode
-#if TFT_HEIGHT > TFT_WIDTH
-  #define SCREEN_WIDTH   TFT_HEIGHT  // Use larger dimension for width (landscape)
-  #define SCREEN_HEIGHT  TFT_WIDTH   // Use smaller dimension for height (landscape)
-#else
-  #define SCREEN_WIDTH   TFT_WIDTH
-  #define SCREEN_HEIGHT  TFT_HEIGHT
 #endif
 
 #define CONTENT_TOP      50  // Below header
+
+// UI Element Size Scaling
+// Base dimensions are for 480x320 display (CYD 3.5")
+// Minimum touch target sizes as recommended (45px for comfortable touch)
+#define BASE_SCREEN_WIDTH   480
+#define BASE_SCREEN_HEIGHT  320
+#define MIN_BUTTON_WIDTH    45   // Minimum comfortable button width
+#define MIN_BUTTON_HEIGHT   45   // Minimum comfortable button height
+
+// Scaling factor calculation for responsive UI
+// For 320x240 displays, scale = 0.67 (320/480)
+#define SCALE_FACTOR_W  ((float)SCREEN_WIDTH / (float)BASE_SCREEN_WIDTH)
+#define SCALE_FACTOR_H  ((float)SCREEN_HEIGHT / (float)BASE_SCREEN_HEIGHT)
+
+// Scaled dimension helpers - use these for all UI element sizes
+#define SCALED_W(w)  ((int)((w) * SCALE_FACTOR_W))
+#define SCALED_H(h)  ((int)((h) * SCALE_FACTOR_H))
+
+// Common scaled button sizes for consistency
+#define BTN_SMALL_W     SCALED_W(60)
+#define BTN_SMALL_H     SCALED_H(35)
+#define BTN_MEDIUM_W    SCALED_W(80)
+#define BTN_MEDIUM_H    SCALED_H(45)
+#define BTN_LARGE_W     SCALED_W(100)
+#define BTN_LARGE_H     SCALED_H(45)
+#define BTN_BACK_W      SCALED_W(70)
+#define BTN_BACK_H      SCALED_H(35)
+
+// Scaled spacing constants
+#define SPACING_SMALL   SCALED_W(5)
+#define SPACING_MEDIUM  SCALED_W(10)
+#define SPACING_LARGE   SCALED_W(20)
+
+// Back button position constants (top-left of header)
+#define BACK_BTN_X      SCALED_W(10)
+#define BACK_BTN_Y      SCALED_H(5)
 
 // BLE MIDI UUIDs
 #define SERVICE_UUID        "03b80e5a-ede8-4b33-a751-6ce34ec4c700"

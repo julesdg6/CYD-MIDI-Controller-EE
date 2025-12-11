@@ -60,26 +60,27 @@ void drawGridPianoMode() {
   }
   
   // Octave controls
-  drawRoundButton(10, 235, 60, 35, "OCT-", THEME_SECONDARY);
-  drawRoundButton(80, 235, 60, 35, "OCT+", THEME_SECONDARY);
+  int ctrlY = SCALED_H(235);
+  drawRoundButton(SCALED_W(10), ctrlY, BTN_SMALL_W, BTN_SMALL_H, "OCT-", THEME_SECONDARY);
+  drawRoundButton(SCALED_W(80), ctrlY, BTN_SMALL_W, BTN_SMALL_H, "OCT+", THEME_SECONDARY);
   
   // Octave display
   tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
-  tft.drawString("Oct " + String(gridOctave), 150, 243, 2);
+  tft.drawString("Oct " + String(gridOctave), SCALED_W(150), SCALED_H(243), 2);
   
   // Current note display
   if (gridPressedNote != -1) {
     tft.setTextColor(THEME_PRIMARY, THEME_BG);
-    tft.drawString("Playing: " + getNoteNameFromMIDI(gridPressedNote), 180, 207, 1);
+    tft.drawString("Playing: " + getNoteNameFromMIDI(gridPressedNote), SCALED_W(180), SCALED_H(207), 1);
   }
 }
 
 void drawGridCell(int row, int col, bool pressed) {
-  int cellW = 45;
-  int cellH = 32;
-  int startX = 10;
-  int startY = 55;
-  int spacing = 2;
+  int cellW = SCALED_W(45);
+  int cellH = SCALED_H(32);
+  int startX = SCALED_W(10);
+  int startY = SCALED_H(55);
+  int spacing = SCALED_W(2);
   
   int x = startX + col * (cellW + spacing);
   int y = startY + row * (cellH + spacing);
@@ -112,7 +113,7 @@ void drawGridCell(int row, int col, bool pressed) {
 
 void handleGridPianoMode() {
   // Back button - larger touch area
-  if (touch.justPressed && isButtonPressed(10, 5, 70, 35)) {
+  if (touch.justPressed && isButtonPressed(BACK_BTN_X, BACK_BTN_Y, BTN_BACK_W, BTN_BACK_H)) {
     exitToMenu();
     return;
   }
@@ -134,11 +135,11 @@ void handleGridPianoMode() {
   }
   
   // Grid interaction
-  int cellW = 45;
-  int cellH = 32;
-  int startX = 10;
-  int startY = 55;
-  int spacing = 2;
+  int cellW = SCALED_W(45);
+  int cellH = SCALED_H(32);
+  int startX = SCALED_W(10);
+  int startY = SCALED_H(55);
+  int spacing = SCALED_W(2);
   
   int pressedNote = -1;
   
