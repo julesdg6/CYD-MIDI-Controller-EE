@@ -35,6 +35,24 @@
   #else
     #define SCREEN_HEIGHT 320  // Default fallback for 3.5" CYD
   #endif
+// Screen dimensions - automatically derived from TFT_WIDTH and TFT_HEIGHT
+// These are defined in platformio.ini for each board variant:
+//   - CYD 3.5" (ILI9488): TFT_WIDTH=320, TFT_HEIGHT=480 → Landscape: 480×320
+//   - CYD 2.8" (ILI9341): TFT_WIDTH=240, TFT_HEIGHT=320 → Landscape: 320×240
+//   - CYD 2.4" (ILI9341): TFT_WIDTH=240, TFT_HEIGHT=320 → Landscape: 320×240
+// All UI elements should use SCREEN_WIDTH and SCREEN_HEIGHT for proper scaling
+#if !defined(TFT_WIDTH) || !defined(TFT_HEIGHT)
+  #error "TFT_WIDTH and TFT_HEIGHT must be defined in build flags (platformio.ini)"
+#endif
+
+// Convert portrait dimensions to landscape (swap if needed)
+// TFT_eSPI defines WIDTH and HEIGHT in portrait mode
+#if TFT_HEIGHT > TFT_WIDTH
+  #define SCREEN_WIDTH   TFT_HEIGHT  // Use larger dimension for width (landscape)
+  #define SCREEN_HEIGHT  TFT_WIDTH   // Use smaller dimension for height (landscape)
+#else
+  #define SCREEN_WIDTH   TFT_WIDTH
+  #define SCREEN_HEIGHT  TFT_HEIGHT
 #endif
 
 #define CONTENT_TOP      50  // Below header

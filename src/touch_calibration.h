@@ -159,18 +159,18 @@ inline bool performCalibration() {
   
   // Test point at bottom-right (opposite of top-left)
   uint16_t testRawX, testRawY;
-  int testScreenX = SCREEN_WIDTH - 40;
-  int testScreenY = SCREEN_HEIGHT - 40;
-  drawCalibrationCrosshair(testScreenX, testScreenY, TFT_YELLOW);
+  int testPointX = SCREEN_WIDTH - 40;
+  int testPointY = SCREEN_HEIGHT - 40;
+  drawCalibrationCrosshair(testPointX, testPointY, TFT_YELLOW);
   
-  if (waitForTouch(testScreenX, testScreenY, testRawX, testRawY)) {
+  if (waitForTouch(testPointX, testPointY, testRawX, testRawY)) {
     // Map test point with current calibration
     int testX = map(testRawX, calibration.x_min, calibration.x_max, 0, SCREEN_WIDTH);
     int testY = map(testRawY, calibration.y_min, calibration.y_max, 0, SCREEN_HEIGHT);
     
     // Determine rotation based on where the test point landed
-    // Expected: bottom-right quadrant
-    // If inverted: top-left quadrant
+    // Expected: around bottom-right quadrant
+    // If inverted: around (40, 40)
     
     if (testX < SCREEN_WIDTH/2 && testY < SCREEN_HEIGHT/2) {
       // Touch landed in top-left quadrant instead of bottom-right - 180° rotation

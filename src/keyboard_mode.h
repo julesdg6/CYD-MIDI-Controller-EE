@@ -37,7 +37,7 @@ void drawKeyboardMode() {
   // Show scale and key info under header
   tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
   String info = scales[keyboardScale].name + " - Key " + getNoteNameFromMIDI(keyboardKey);
-  tft.drawCentreString(info, 240, 52, 2);
+  tft.drawCentreString(info, SCREEN_WIDTH/2, 52, 2);
   
   // Draw keys - two rows
   for (int row = 0; row < NUM_ROWS; row++) {

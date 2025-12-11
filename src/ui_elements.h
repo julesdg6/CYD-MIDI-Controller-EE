@@ -6,7 +6,6 @@
 
 // UI function declarations
 void updateTouch();
-void updateStatus();
 bool isButtonPressed(int x, int y, int w, int h);
 void drawRoundButton(int x, int y, int w, int h, String text, uint16_t color, bool pressed = false);
 void drawHeader(String title, String subtitle = "");
@@ -111,10 +110,6 @@ inline void drawHeader(String title, String subtitle) {
   }
   
   drawRoundButton(10, 5, 70, 35, "BACK", THEME_ERROR);
-}
-
-inline void updateStatus() {
-  // Status bar removed - no more BLE connection alerts on every screen
 }
 
 inline void drawSettingsIcon(int x, int y) {
