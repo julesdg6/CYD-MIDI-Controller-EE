@@ -14,6 +14,12 @@ bool padPressed = false;
 int padX = 0, padY = 0;  // Touch position on pad
 bool xyPadNeedsReset = false;  // Flag to reset static variables
 
+// Control buttons
+Button xyBtnXccDown;
+Button xyBtnXccUp;
+Button xyBtnYccDown;
+Button xyBtnYccUp;
+
 // Pad area dimensions
 #define PAD_X 20
 #define PAD_Y (CONTENT_TOP + 10)
@@ -38,6 +44,27 @@ void initializeXYPadMode() {
   xValue = 64;
   yValue = 64;
   padPressed = false;
+  
+  // Initialize control buttons
+  int controlsX = PAD_X + PAD_WIDTH + 15;
+  int btnWidth = 40;
+  int btnSpacing = 45;
+  
+  xyBtnXccDown.setBounds(controlsX, PAD_Y + 25, btnWidth, 25);
+  xyBtnXccDown.setText("-");
+  xyBtnXccDown.setColor(THEME_SECONDARY);
+  
+  xyBtnXccUp.setBounds(controlsX + btnSpacing, PAD_Y + 25, btnWidth, 25);
+  xyBtnXccUp.setText("+");
+  xyBtnXccUp.setColor(THEME_SECONDARY);
+  
+  xyBtnYccDown.setBounds(controlsX, PAD_Y + 105, btnWidth, 25);
+  xyBtnYccDown.setText("-");
+  xyBtnYccDown.setColor(THEME_SECONDARY);
+  
+  xyBtnYccUp.setBounds(controlsX + btnSpacing, PAD_Y + 105, btnWidth, 25);
+  xyBtnYccUp.setText("+");
+  xyBtnYccUp.setColor(THEME_SECONDARY);
 }
 
 void drawXYPadMode() {
@@ -131,8 +158,8 @@ void drawCCControls() {
   tft.setTextColor(THEME_PRIMARY, THEME_BG);
   tft.drawString("X CC", controlsX, PAD_Y, 2);
   
-  drawRoundButton(controlsX, PAD_Y + 25, btnWidth, 25, "-", THEME_SECONDARY);
-  drawRoundButton(controlsX + btnSpacing, PAD_Y + 25, btnWidth, 25, "+", THEME_SECONDARY);
+  xyBtnXccDown.draw(true);
+  xyBtnXccUp.draw(true);
   
   tft.setTextColor(THEME_TEXT, THEME_BG);
   tft.drawCentreString(String(xCC), controlsX + btnSpacing/2 + 8, PAD_Y + 55, 2);
@@ -141,8 +168,8 @@ void drawCCControls() {
   tft.setTextColor(THEME_ACCENT, THEME_BG);
   tft.drawString("Y CC", controlsX, PAD_Y + 80, 2);
   
-  drawRoundButton(controlsX, PAD_Y + 105, btnWidth, 25, "-", THEME_SECONDARY);
-  drawRoundButton(controlsX + btnSpacing, PAD_Y + 105, btnWidth, 25, "+", THEME_SECONDARY);
+  xyBtnYccDown.draw(true);
+  xyBtnYccUp.draw(true);
   
   tft.setTextColor(THEME_TEXT, THEME_BG);
   tft.drawCentreString(String(yCC), controlsX + btnSpacing/2 + 8, PAD_Y + 135, 2);
@@ -156,6 +183,12 @@ void handleXYPadMode() {
     exitToMenu();
     return;
   }
+  
+  // Update button visual states
+  xyBtnXccDown.draw();
+  xyBtnXccUp.draw();
+  xyBtnYccDown.draw();
+  xyBtnYccUp.draw();
   
   if (touch.isPressed) {
     // Check if touching the pad
@@ -175,29 +208,25 @@ void handleXYPadMode() {
   }
   
   if (touch.justPressed) {
-    int controlsX = PAD_X + PAD_WIDTH + 15;  // Match drawCCControls
-    int btnWidth = 40;
-    int btnSpacing = 45;
-    
     // X CC controls
-    if (isButtonPressed(controlsX, PAD_Y + 25, btnWidth, 25)) {
+    if (xyBtnXccDown.justPressed()) {
       xCC = max(0, xCC - 1);
       drawCCControls();
       return;
     }
-    if (isButtonPressed(controlsX + btnSpacing, PAD_Y + 25, btnWidth, 25)) {
+    if (xyBtnXccUp.justPressed()) {
       xCC = min(127, xCC + 1);
       drawCCControls();
       return;
     }
     
     // Y CC controls
-    if (isButtonPressed(controlsX, PAD_Y + 105, btnWidth, 25)) {
+    if (xyBtnYccDown.justPressed()) {
       yCC = max(0, yCC - 1);
       drawCCControls();
       return;
     }
-    if (isButtonPressed(controlsX + btnSpacing, PAD_Y + 105, btnWidth, 25)) {
+    if (xyBtnYccUp.justPressed()) {
       yCC = min(127, yCC + 1);
       drawCCControls();
       return;
