@@ -17,9 +17,23 @@
 #define THEME_TEXT       0xFFFF
 #define THEME_TEXT_DIM   0x8410
 
-// Screen dimensions
-#define SCREEN_WIDTH     480
-#define SCREEN_HEIGHT    320
+// Screen dimensions - automatically derived from TFT_WIDTH and TFT_HEIGHT
+// These are defined in platformio.ini for each board variant (in portrait mode)
+// We use landscape orientation (width > height)
+#if !defined(TFT_WIDTH) || !defined(TFT_HEIGHT)
+  #error "TFT_WIDTH and TFT_HEIGHT must be defined in build flags (platformio.ini)"
+#endif
+
+// Convert portrait dimensions to landscape (swap if needed)
+// TFT_eSPI defines WIDTH and HEIGHT in portrait mode
+#if TFT_HEIGHT > TFT_WIDTH
+  #define SCREEN_WIDTH   TFT_HEIGHT  // Use larger dimension for width
+  #define SCREEN_HEIGHT  TFT_WIDTH   // Use smaller dimension for height
+#else
+  #define SCREEN_WIDTH   TFT_WIDTH
+  #define SCREEN_HEIGHT  TFT_HEIGHT
+#endif
+
 #define CONTENT_TOP      50  // Below header
 
 // BLE MIDI UUIDs
