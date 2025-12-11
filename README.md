@@ -126,11 +126,14 @@ Advanced touchscreen Bluetooth MIDI controller for the ESP32-2432S028R "Cheap Ye
 
 All boards available for ~$15 from AliExpress/Amazon
 
+> **📌 Pin Map:** Complete pin assignments for display, touch, SD card, and available expansion pins are documented in [BUILD.md - Pin Map Reference](BUILD.md#pin-map-reference)
+
 ### Additional
 
 - **MicroSD Card** (optional) - For screenshot capture, WiFi config storage, and web file management
 - **PlatformIO** or **Arduino IDE** with ESP32 support
 - **WiFi Network** (optional) - For web server and remote control features
+- **Serial MIDI (future)** - Available GPIOs for M5 MIDI breakout or DIN-5 connector (see pin map)
 
 ### Recent Enhancements
 
@@ -227,6 +230,7 @@ Access at `http://[device-ip]` when connected to WiFi:
 - **WiFi not connecting**: Create `/wifi_config.txt` on SD card with SSID on line 1, password on line 2
 - **Web server not accessible**: Check device IP address on serial monitor or connect to AP mode "CYD-MIDI" (password: midi1234)
 - **Screenshots failing**: Ensure SD card has sufficient space and `/screenshots/` directory exists
+- **Hardware modifications**: Check [BUILD.md - Pin Map Reference](BUILD.md#pin-map-reference) for complete pin assignments before adding external hardware
 
 ## Development
 
