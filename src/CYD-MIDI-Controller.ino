@@ -89,7 +89,8 @@ void drawMenu();
 void showSettingsMenu(bool interactive = true);
 
 // Scalable App Icon System
-// To add new apps:
+// To add new apps, see DEV_NOTES.md for complete step-by-step guide
+// Quick reference:
 // 1. Add new mode to AppMode enum in common_definitions.h
 // 2. Create mode header file (e.g., new_mode.h)
 // 3. Include header in this file

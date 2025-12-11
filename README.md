@@ -253,6 +253,10 @@ src/
 
 Contributions welcome! This project has diverged significantly from the original, focusing on improved UX for capacitive touchscreens.
 
+### For Developers
+
+Want to add a new mode? See **[DEV_NOTES.md](DEV_NOTES.md)** for a complete step-by-step guide on creating new interactive modes.
+
 ## License
 
 Open source - see MIT license file for details.
