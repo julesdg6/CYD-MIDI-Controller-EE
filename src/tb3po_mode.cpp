@@ -420,7 +420,7 @@ void handleTB3POMode() {
     }
 
     // Check back button from header (standard position)
-    else if (isButtonPressed(10, 5, 70, 35)) {
+    else if (isButtonPressed(BACK_BTN_X, BACK_BTN_Y, BTN_BACK_W, BTN_BACK_H)) {
       Serial.println("BACK pressed (header)");
       if (tb3po.currentNote >= 0) {
         sendNoteOff(tb3po.currentNote);

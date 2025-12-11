@@ -22,6 +22,42 @@
 #define SCREEN_HEIGHT    320
 #define CONTENT_TOP      50  // Below header
 
+// UI Element Size Scaling
+// Base dimensions are for 480x320 display (CYD 3.5")
+// Minimum touch target sizes as recommended (45px for comfortable touch)
+#define BASE_SCREEN_WIDTH   480
+#define BASE_SCREEN_HEIGHT  320
+#define MIN_BUTTON_WIDTH    45   // Minimum comfortable button width
+#define MIN_BUTTON_HEIGHT   45   // Minimum comfortable button height
+
+// Scaling factor calculation for responsive UI
+// For 320x240 displays, scale = 0.67 (320/480)
+#define SCALE_FACTOR_W  ((float)SCREEN_WIDTH / (float)BASE_SCREEN_WIDTH)
+#define SCALE_FACTOR_H  ((float)SCREEN_HEIGHT / (float)BASE_SCREEN_HEIGHT)
+
+// Scaled dimension helpers - use these for all UI element sizes
+#define SCALED_W(w)  ((int)((w) * SCALE_FACTOR_W))
+#define SCALED_H(h)  ((int)((h) * SCALE_FACTOR_H))
+
+// Common scaled button sizes for consistency
+#define BTN_SMALL_W     SCALED_W(60)
+#define BTN_SMALL_H     SCALED_H(35)
+#define BTN_MEDIUM_W    SCALED_W(80)
+#define BTN_MEDIUM_H    SCALED_H(45)
+#define BTN_LARGE_W     SCALED_W(100)
+#define BTN_LARGE_H     SCALED_H(45)
+#define BTN_BACK_W      SCALED_W(70)
+#define BTN_BACK_H      SCALED_H(35)
+
+// Scaled spacing constants
+#define SPACING_SMALL   SCALED_W(5)
+#define SPACING_MEDIUM  SCALED_W(10)
+#define SPACING_LARGE   SCALED_W(20)
+
+// Back button position constants (top-left of header)
+#define BACK_BTN_X      SCALED_W(10)
+#define BACK_BTN_Y      SCALED_H(5)
+
 // BLE MIDI UUIDs
 #define SERVICE_UUID        "03b80e5a-ede8-4b33-a751-6ce34ec4c700"
 #define CHARACTERISTIC_UUID "7772e5db-3868-4112-a1a9-f2669d106bf3"
