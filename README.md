@@ -134,10 +134,11 @@ All boards available for ~$15 from AliExpress/Amazon
 
 ### Recent Enhancements
 
+- ✅ **Multi-resolution support** - Automatic screen scaling for 480×320, 320×240 displays
 - ✅ **Larger touch targets** - Minimum 45px buttons for better accuracy
 - ✅ **Fixed touch detection** - Resolved Y-coordinate mismatches in all modes
 - ✅ **Improved layouts** - Settings menu, Grid Piano (45×32 cells), Auto Chord, Arpeggiator
-- ✅ **Better spacing** - No overlapping buttons, optimized for 480×320 display
+- ✅ **Better spacing** - No overlapping buttons, optimized layouts
 - ✅ **Header icons** - BLE status, SD card indicator, and BPM display on main menu
 - ✅ **MIDI channel support** - Configurable per-session MIDI channels (1-16)
 - ✅ **Expanded flash memory** - 3.1MB app partition for advanced features
@@ -195,6 +196,8 @@ Replace the `libraries/TFT_eSPI/User_Setup.h` with the `User_Setup.h` from the r
 ## Usage
 
 ### First Run - Touch Calibration
+
+On first boot, the device will automatically start touch calibration. Follow the on-screen prompts to touch each crosshair accurately. **Important**: If you change display size (e.g., from 3.5" to 2.8"), you must re-run calibration from the Settings menu for accurate touch detection.
 
 ### Settings Menu
 
