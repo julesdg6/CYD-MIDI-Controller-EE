@@ -149,15 +149,170 @@ All boards available for ~$15 from AliExpress/Amazon
 
 ### Option A: PlatformIO (Recommended)
 
-1. Install [PlatformIO](https://platformio.org/)
-2. Clone this repo:
-   ```bash
-   git clone https://github.com/julesdg6/CYD-MIDI-Controller-EE.git
-   cd CYD-MIDI-Controller-EE
-   ```
-3. Open in VS Code with PlatformIO extension
-4. Select your board in `platformio.ini` (default: `cyd35`)
-5. Click "Upload"
+#### 1. Install PlatformIO
+
+**VS Code Method (Easiest):**
+1. Install [Visual Studio Code](https://code.visualstudio.com/)
+2. Open VS Code and go to Extensions (Ctrl+Shift+X / Cmd+Shift+X)
+3. Search for "PlatformIO IDE" and install it
+4. Reload VS Code when prompted
+
+**Command Line Method:**
+```bash
+# macOS/Linux
+pip install platformio
+
+# Or via Homebrew (macOS)
+brew install platformio
+```
+
+#### 2. Clone and Open Project
+
+```bash
+git clone https://github.com/julesdg6/CYD-MIDI-Controller-EE.git
+cd CYD-MIDI-Controller-EE
+```
+
+Then open the folder in VS Code with PlatformIO installed.
+
+#### 3. Install USB Drivers
+
+**Before uploading**, ensure you have the correct USB-to-serial drivers installed:
+
+- **CP210x (Silicon Labs)** - Most common for CYD boards
+  - Download: [Silicon Labs CP210x Drivers](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers)
+  - macOS: Install the `.dmg` and restart
+  - Windows: Run the installer executable
+  - Linux: Usually pre-installed (module: `cp210x`)
+
+- **CH340/CH341 (WCH)** - Alternative chip used on some boards
+  - Download: [WCH CH340 Drivers](http://www.wch-ic.com/downloads/CH341SER_EXE.html)
+  - macOS: May require allowing in System Preferences → Security & Privacy
+  - Windows: Run installer as administrator
+  - Linux: Usually pre-installed (module: `ch341`)
+
+**Verify driver installation:**
+```bash
+# macOS/Linux - You should see a device like:
+ls /dev/cu.* /dev/tty*
+# Look for: /dev/cu.usbserial-* or /dev/cu.SLAB_USBtoUART or /dev/ttyUSB0
+
+# Windows - Check Device Manager under "Ports (COM & LPT)"
+# Look for: COM3, COM4, etc. with "USB Serial Port" or "CH340"
+```
+
+#### 4. Select Your Board
+
+Edit `platformio.ini` and uncomment the line for your CYD model:
+
+```ini
+[platformio]
+default_envs = cyd35   ; 3.5" display (480×320) - Default
+;default_envs = cyd28  ; 2.8" display (320×240)
+;default_envs = cyd24  ; 2.4" display (320×240)
+```
+
+#### 5. Build and Upload
+
+**Using VS Code:**
+1. Connect your CYD board via USB
+2. Click the **checkmark (✓)** icon in the bottom toolbar to build
+3. Click the **right arrow (→)** icon to upload
+4. Monitor output with the **plug icon** for serial monitor
+
+**Using Command Line:**
+```bash
+# Build only (compile without uploading)
+pio run -e cyd35
+
+# Upload to board (auto-detects port)
+pio run -t upload -e cyd35
+
+# Upload with specific port
+pio run -t upload -e cyd35 --upload-port /dev/cu.SLAB_USBtoUART
+
+# Open serial monitor after upload
+pio device monitor -b 115200
+```
+
+#### 6. Upload Speed Configuration
+
+If uploads **fail or timeout**, try reducing the upload speed in `platformio.ini`:
+
+```ini
+[env:cyd35]
+upload_speed = 115200  ; Add this line (default is usually 921600)
+```
+
+Common working speeds: `115200`, `230400`, `460800`, `921600`
+
+#### 7. Troubleshooting PlatformIO Uploads
+
+**"Serial port not found" or "Device not connected"**
+- Check USB cable (use a data cable, not charge-only)
+- Verify drivers are installed (see Step 3)
+- Try a different USB port (USB 2.0 ports often work better)
+- Check `dmesg` (Linux) or `system_profiler SPUSBDataType` (macOS) after plugging in
+
+**"Failed to connect to ESP32"**
+- **Hold BOOT button** during upload (release after "Connecting..." appears)
+- Some CYD boards require manual boot mode entry:
+  1. Hold **BOOT** button
+  2. Press and release **RST** (reset) button
+  3. Release **BOOT** button
+  4. Start upload immediately
+- Try reducing upload speed to `115200` (see Step 6)
+- Check if another program is using the serial port (close Arduino IDE, screen, minicom)
+
+**"Timed out waiting for packet header" or "Failed to enter bootloader"**
+- Add this to `platformio.ini` under your `[env:cyd35]` section:
+  ```ini
+  upload_speed = 115200
+  upload_resetmethod = nodemcu
+  ```
+- Or try: `upload_resetmethod = ck` or `upload_resetmethod = wifio`
+
+**ESP32-S3 Specific Issues** (If you have an ESP32-S3 variant)
+- ESP32-S3 boards may have **two USB ports**: one for programming, one for UART
+  - Use the port labeled "USB" or "UART" for uploading
+  - If unclear, try both ports
+- ESP32-S3 requires entering boot mode differently:
+  1. Hold **BOOT** (GPIO0) button
+  2. Press **RST** button briefly
+  3. Release **BOOT** after 1-2 seconds
+  4. Device should appear as serial port, then upload
+- For ESP32-S3 with **native USB CDC**, add to `platformio.ini`:
+  ```ini
+  board = esp32-s3-devkitc-1
+  board_build.mcu = esp32s3
+  board_build.f_cpu = 240000000L
+  upload_speed = 115200
+  ```
+
+**Permission denied (Linux/macOS)**
+- Linux: Add user to `dialout` group:
+  ```bash
+  sudo usermod -a -G dialout $USER
+  # Log out and back in
+  ```
+- macOS: Grant Terminal/VS Code permissions in System Preferences → Security & Privacy → Full Disk Access
+
+**"Flash size mismatch" or "Partition table errors"**
+- The project uses `huge_app.csv` partition scheme (3.1MB app partition)
+- Ensure `board_build.partitions = huge_app.csv` is in `platformio.ini`
+- Some boards may need `board_upload.flash_size = 4MB` explicitly set
+
+**Build succeeds but upload hangs at "Connecting..."**
+- Unplug and replug USB cable
+- Try holding BOOT button during entire upload process
+- Check for hardware issues (faulty USB cable, damaged port)
+- Use powered USB hub if board draws significant current
+
+**Still having issues?**
+- Clean build: `pio run --target clean && pio run`
+- Check serial monitor output: `pio device monitor -b 115200`
+- Verify correct board selection in `platformio.ini`
+- Post complete error output to GitHub issues with board model and OS
 
 ### Option B: Arduino IDE
 
@@ -209,10 +364,17 @@ Access at `http://[device-ip]` when connected to WiFi:
 
 ## Troubleshooting
 
-- **Touch accuracy issues**: Run touchscreen calibration from Settings menu
-- **Upload fails**: Lower upload speed to `115200` in PlatformIO or Arduino IDE
+### Upload & Connection Issues
+- **Upload fails**: See detailed [PlatformIO Troubleshooting](#7-troubleshooting-platformio-uploads) section above
+- **Serial port not found**: Install USB drivers (CP210x or CH340) - see [Installation → Option A → Step 3](#3-install-usb-drivers)
+- **ESP32-S3 connection issues**: Check [ESP32-S3 Specific Issues](#7-troubleshooting-platformio-uploads) in PlatformIO section
+
+### Hardware & Display
 - **Blank screen**: Check TFT_eSPI pin configuration matches `User_Setup.h`
 - **Touch not responding**: Verify XPT2046_Touchscreen library is installed
+- **Touch accuracy issues**: Run touchscreen calibration from Settings menu
+
+### Connectivity
 - **Bluetooth not pairing**: Toggle BLE off/on in Settings, restart device
 - **SD card not detected**: Ensure FAT32 formatted card is properly inserted
 - **WiFi not connecting**: Create `/wifi_config.txt` on SD card with SSID on line 1, password on line 2
