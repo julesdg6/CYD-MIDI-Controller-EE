@@ -4,6 +4,7 @@
 #include <EEPROM.h>
 #include <TFT_eSPI.h>
 #include <XPT2046_Touchscreen.h>
+#include "common_definitions.h"
 
 #define EEPROM_SIZE 64
 #define CALIBRATION_MAGIC 0xCAFE
@@ -94,8 +95,8 @@ inline bool performCalibration() {
   
   CalPoint points[3] = {
     {40, 40, 0, 0},                              // Top-left
-    {SCREEN_WIDTH - 40, SCREEN_HEIGHT/2, 0, 0}, // Right-center
-    {40, SCREEN_HEIGHT - 40, 0, 0}              // Bottom-left
+    {SCREEN_WIDTH - 40, SCREEN_HEIGHT/2, 0, 0},  // Right-center
+    {40, SCREEN_HEIGHT - 40, 0, 0}               // Bottom-left
   };
   
   // Collect touch data for each point
@@ -195,18 +196,18 @@ inline bool performCalibration() {
   // Show results
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_GREEN, TFT_BLACK);
-  tft.drawCentreString("CALIBRATION COMPLETE", SCREEN_WIDTH/2, 100, 4);
+  tft.drawCentreString("CALIBRATION COMPLETE", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 60, 4);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   char buffer[64];
   sprintf(buffer, "X: %d - %d", calibration.x_min, calibration.x_max);
-  tft.drawCentreString(buffer, SCREEN_WIDTH/2, 140, 2);
+  tft.drawCentreString(buffer, SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 20, 2);
   sprintf(buffer, "Y: %d - %d", calibration.y_min, calibration.y_max);
-  tft.drawCentreString(buffer, SCREEN_WIDTH/2, 165, 2);
+  tft.drawCentreString(buffer, SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 5, 2);
   sprintf(buffer, "Swap XY: %s", calibration.swap_xy ? "Yes" : "No");
-  tft.drawCentreString(buffer, SCREEN_WIDTH/2, 190, 2);
+  tft.drawCentreString(buffer, SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 30, 2);
   sprintf(buffer, "Rotation: %d deg", calibration.rotation * 90);
-  tft.drawCentreString(buffer, SCREEN_WIDTH/2, 215, 2);
-  tft.drawCentreString("Saving to memory...", SCREEN_WIDTH/2, SCREEN_HEIGHT - 70, 2);
+  tft.drawCentreString(buffer, SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 55, 2);
+  tft.drawCentreString("Saving to memory...", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 90, 2);
   
   delay(2000);
   

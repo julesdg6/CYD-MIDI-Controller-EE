@@ -47,7 +47,7 @@ inline void updateTouch() {
       rawY = temp;
     }
     
-    // Map using calibrated values
+    // Map using calibrated values to screen dimensions
     int mappedX = map(rawX, calibration.x_min, calibration.x_max, 0, SCREEN_WIDTH);
     int mappedY = map(rawY, calibration.y_min, calibration.y_max, 0, SCREEN_HEIGHT);
     

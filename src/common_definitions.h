@@ -17,6 +17,24 @@
 #define THEME_TEXT       0xFFFF
 #define THEME_TEXT_DIM   0x8410
 
+// Screen dimensions - use TFT_eSPI's configured dimensions
+// TFT_WIDTH and TFT_HEIGHT are set via platformio.ini build flags
+// Note: Values are swapped because the TFT is rotated 90° for landscape orientation
+// (e.g., a 240x320 portrait TFT becomes 320x240 in landscape)
+#ifndef SCREEN_WIDTH
+  #ifdef TFT_HEIGHT
+    #define SCREEN_WIDTH TFT_HEIGHT  // TFT rotated: height becomes width
+  #else
+    #define SCREEN_WIDTH 480  // Default fallback for 3.5" CYD
+  #endif
+#endif
+
+#ifndef SCREEN_HEIGHT
+  #ifdef TFT_WIDTH
+    #define SCREEN_HEIGHT TFT_WIDTH  // TFT rotated: width becomes height
+  #else
+    #define SCREEN_HEIGHT 320  // Default fallback for 3.5" CYD
+  #endif
 // Screen dimensions - automatically derived from TFT_WIDTH and TFT_HEIGHT
 // These are defined in platformio.ini for each board variant:
 //   - CYD 3.5" (ILI9488): TFT_WIDTH=320, TFT_HEIGHT=480 → Landscape: 480×320
