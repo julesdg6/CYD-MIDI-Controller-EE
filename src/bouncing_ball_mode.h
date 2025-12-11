@@ -14,6 +14,12 @@ struct Ball {
   bool active;
 };
 
+// Play area constants for 480x320 screen
+#define PLAY_AREA_MARGIN_X 80
+#define PLAY_AREA_MARGIN_Y_TOP 70
+#define PLAY_AREA_MARGIN_Y_BOTTOM 100
+#define WALL_THICKNESS 4
+
 #define MAX_BALLS 4
 Ball balls[MAX_BALLS];
 int numActiveBalls = 1;
@@ -83,11 +89,10 @@ void drawBouncingBallMode() {
 }
 
 void initializeBalls() {
-  // Calculate play area boundaries
-  int playLeft = 80;
-  int playRight = SCREEN_WIDTH - 80;
-  int playTop = 70;
-  int playBottom = SCREEN_HEIGHT - 100;
+  const int playLeft = PLAY_AREA_MARGIN_X;
+  const int playRight = SCREEN_WIDTH - PLAY_AREA_MARGIN_X;
+  const int playTop = PLAY_AREA_MARGIN_Y_TOP;
+  const int playBottom = SCREEN_HEIGHT - PLAY_AREA_MARGIN_Y_BOTTOM;
   
   for (int i = 0; i < MAX_BALLS; i++) {
     balls[i].x = random(playLeft + 20, playRight - 20);
@@ -107,21 +112,20 @@ void initializeBalls() {
 void initializeWalls() {
   int wallIndex = 0;
   
-  // Calculate play area boundaries
-  int playLeft = 80;
-  int playRight = SCREEN_WIDTH - 80;
-  int playTop = 70;
-  int playBottom = SCREEN_HEIGHT - 100;
-  int playWidth = playRight - playLeft;
-  int playHeight = playBottom - playTop;
+  const int playLeft = PLAY_AREA_MARGIN_X;
+  const int playRight = SCREEN_WIDTH - PLAY_AREA_MARGIN_X;
+  const int playTop = PLAY_AREA_MARGIN_Y_TOP;
+  const int playBottom = SCREEN_HEIGHT - PLAY_AREA_MARGIN_Y_BOTTOM;
+  const int playWidth = playRight - playLeft;
+  const int playHeight = playBottom - playTop;
   
   // Top wall - 8 segments
-  int segmentWidth = playWidth / 8;
+  const int segmentWidth = playWidth / 8;
   for (int i = 0; i < 8; i++) {
     walls[wallIndex].x = playLeft + i * segmentWidth;
     walls[wallIndex].y = playTop;
     walls[wallIndex].w = segmentWidth;
-    walls[wallIndex].h = 4;
+    walls[wallIndex].h = WALL_THICKNESS;
     walls[wallIndex].note = getNoteInScale(ballScale, i, ballOctave) + ballKey;
     walls[wallIndex].noteName = getNoteNameFromMIDI(walls[wallIndex].note);
     walls[wallIndex].color = THEME_PRIMARY;
@@ -131,11 +135,11 @@ void initializeWalls() {
   }
   
   // Right wall - 4 segments
-  int segmentHeight = playHeight / 4;
+  const int segmentHeight = playHeight / 4;
   for (int i = 0; i < 4; i++) {
-    walls[wallIndex].x = playRight - 4;
+    walls[wallIndex].x = playRight - WALL_THICKNESS;
     walls[wallIndex].y = playTop + i * segmentHeight;
-    walls[wallIndex].w = 4;
+    walls[wallIndex].w = WALL_THICKNESS;
     walls[wallIndex].h = segmentHeight;
     walls[wallIndex].note = getNoteInScale(ballScale, i, ballOctave + 1) + ballKey;
     walls[wallIndex].noteName = getNoteNameFromMIDI(walls[wallIndex].note);
@@ -148,9 +152,9 @@ void initializeWalls() {
   // Bottom wall - 8 segments
   for (int i = 0; i < 8; i++) {
     walls[wallIndex].x = playLeft + i * segmentWidth;
-    walls[wallIndex].y = playBottom - 4;
+    walls[wallIndex].y = playBottom - WALL_THICKNESS;
     walls[wallIndex].w = segmentWidth;
-    walls[wallIndex].h = 4;
+    walls[wallIndex].h = WALL_THICKNESS;
     walls[wallIndex].note = getNoteInScale(ballScale, 7 - i, ballOctave) + ballKey;
     walls[wallIndex].noteName = getNoteNameFromMIDI(walls[wallIndex].note);
     walls[wallIndex].color = THEME_ACCENT;
@@ -163,7 +167,7 @@ void initializeWalls() {
   for (int i = 0; i < 4; i++) {
     walls[wallIndex].x = playLeft;
     walls[wallIndex].y = playTop + i * segmentHeight;
-    walls[wallIndex].w = 4;
+    walls[wallIndex].w = WALL_THICKNESS;
     walls[wallIndex].h = segmentHeight;
     walls[wallIndex].note = getNoteInScale(ballScale, 3 - i, ballOctave + 1) + ballKey;
     walls[wallIndex].noteName = getNoteNameFromMIDI(walls[wallIndex].note);
@@ -242,15 +246,15 @@ void updateBouncingBall() {
   // Smooth 60 FPS animation
   static unsigned long lastUpdate = 0;
   if (millis() - lastUpdate > 16) {
-    // Calculate play area boundaries
-    int playLeft = 80;
-    int playRight = SCREEN_WIDTH - 80;
-    int playTop = 70;
-    int playBottom = SCREEN_HEIGHT - 100;
+    const int playLeft = PLAY_AREA_MARGIN_X;
+    const int playRight = SCREEN_WIDTH - PLAY_AREA_MARGIN_X;
+    const int playTop = PLAY_AREA_MARGIN_Y_TOP;
+    const int playBottom = SCREEN_HEIGHT - PLAY_AREA_MARGIN_Y_BOTTOM;
     
     // Clear entire play area to prevent flickering
-    tft.fillRect(playLeft + 4, playTop + 4, 
-                 playRight - playLeft - 8, playBottom - playTop - 8, THEME_BG);
+    tft.fillRect(playLeft + WALL_THICKNESS, playTop + WALL_THICKNESS, 
+                 playRight - playLeft - 2 * WALL_THICKNESS, 
+                 playBottom - playTop - 2 * WALL_THICKNESS, THEME_BG);
     
     updateBalls();
     checkWallCollisions();
@@ -266,11 +270,10 @@ void updateBouncingBall() {
 }
 
 void updateBalls() {
-  // Calculate play area boundaries
-  int playLeft = 80;
-  int playRight = SCREEN_WIDTH - 80;
-  int playTop = 70;
-  int playBottom = SCREEN_HEIGHT - 100;
+  const int playLeft = PLAY_AREA_MARGIN_X;
+  const int playRight = SCREEN_WIDTH - PLAY_AREA_MARGIN_X;
+  const int playTop = PLAY_AREA_MARGIN_Y_TOP;
+  const int playBottom = SCREEN_HEIGHT - PLAY_AREA_MARGIN_Y_BOTTOM;
   
   for (int i = 0; i < numActiveBalls; i++) {
     if (!balls[i].active) continue;
@@ -280,21 +283,21 @@ void updateBalls() {
     balls[i].y += balls[i].vy;
     
     // Bounce off walls with proper collision detection
-    if (balls[i].x - balls[i].size <= playLeft + 4) {
+    if (balls[i].x - balls[i].size <= playLeft + WALL_THICKNESS) {
       balls[i].vx = abs(balls[i].vx);
-      balls[i].x = playLeft + 4 + balls[i].size;
+      balls[i].x = playLeft + WALL_THICKNESS + balls[i].size;
     }
-    if (balls[i].x + balls[i].size >= playRight - 4) {
+    if (balls[i].x + balls[i].size >= playRight - WALL_THICKNESS) {
       balls[i].vx = -abs(balls[i].vx);
-      balls[i].x = playRight - 4 - balls[i].size;
+      balls[i].x = playRight - WALL_THICKNESS - balls[i].size;
     }
-    if (balls[i].y - balls[i].size <= playTop + 4) {
+    if (balls[i].y - balls[i].size <= playTop + WALL_THICKNESS) {
       balls[i].vy = abs(balls[i].vy);
-      balls[i].y = playTop + 4 + balls[i].size;
+      balls[i].y = playTop + WALL_THICKNESS + balls[i].size;
     }
-    if (balls[i].y + balls[i].size >= playBottom - 4) {
+    if (balls[i].y + balls[i].size >= playBottom - WALL_THICKNESS) {
       balls[i].vy = -abs(balls[i].vy);
-      balls[i].y = playBottom - 4 - balls[i].size;
+      balls[i].y = playBottom - WALL_THICKNESS - balls[i].size;
     }
   }
 }
