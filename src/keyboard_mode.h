@@ -37,7 +37,7 @@ void drawKeyboardMode() {
   // Show scale and key info under header
   tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
   String info = scales[keyboardScale].name + " - Key " + getNoteNameFromMIDI(keyboardKey);
-  tft.drawCentreString(info, 240, 52, 2);
+  tft.drawCentreString(info, SCREEN_WIDTH/2, 52, 2);
   
   // Draw keys - two rows
   for (int row = 0; row < NUM_ROWS; row++) {
@@ -47,14 +47,14 @@ void drawKeyboardMode() {
   }
   
   // Control layout - larger buttons at bottom
-  int btnY = 240;  // Lower position
-  int btnH = 45;   // Taller buttons (was 25)
-  drawRoundButton(10, btnY, 60, btnH, "OCT-", THEME_SECONDARY);
-  drawRoundButton(80, btnY, 60, btnH, "OCT+", THEME_SECONDARY);
-  drawRoundButton(150, btnY, 80, btnH, "SCALE", THEME_ACCENT);
-  drawRoundButton(240, btnY, 60, btnH, "KEY-", THEME_WARNING);
-  drawRoundButton(310, btnY, 60, btnH, "KEY+", THEME_WARNING);
-  drawRoundButton(380, btnY, 90, btnH, "MENU", THEME_PRIMARY);
+  int btnY = SCALED_H(240);  // Lower position
+  int btnH = BTN_MEDIUM_H;   // Taller buttons (was 25)
+  drawRoundButton(SCALED_W(10), btnY, BTN_SMALL_W, btnH, "OCT-", THEME_SECONDARY);
+  drawRoundButton(SCALED_W(80), btnY, BTN_SMALL_W, btnH, "OCT+", THEME_SECONDARY);
+  drawRoundButton(SCALED_W(150), btnY, BTN_MEDIUM_W, btnH, "SCALE", THEME_ACCENT);
+  drawRoundButton(SCALED_W(240), btnY, BTN_SMALL_W, btnH, "KEY-", THEME_WARNING);
+  drawRoundButton(SCALED_W(310), btnY, BTN_SMALL_W, btnH, "KEY+", THEME_WARNING);
+  drawRoundButton(SCALED_W(380), btnY, SCALED_W(90), btnH, "MENU", THEME_PRIMARY);
   
   // Status display
   tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
@@ -85,33 +85,33 @@ void drawKeyboardKey(int row, int keyIndex, bool pressed) {
 }
 
 void handleKeyboardMode() {
-  if (touch.justPressed && isButtonPressed(10, 5, 70, 35)) {
+  if (touch.justPressed && isButtonPressed(BACK_BTN_X, BACK_BTN_Y, BTN_BACK_W, BTN_BACK_H)) {
     exitToMenu();
     return;
   }
   
   if (touch.justPressed) {
-    if (isButtonPressed(10, 240, 60, 45)) {
+    if (isButtonPressed(SCALED_W(10), SCALED_H(240), BTN_SMALL_W, BTN_MEDIUM_H)) {
       keyboardOctave = max(1, keyboardOctave - 1);
       drawKeyboardMode();
       return;
     }
-    if (isButtonPressed(80, 240, 60, 45)) {
+    if (isButtonPressed(SCALED_W(80), SCALED_H(240), BTN_SMALL_W, BTN_MEDIUM_H)) {
       keyboardOctave = min(8, keyboardOctave + 1);
       drawKeyboardMode();
       return;
     }
-    if (isButtonPressed(150, 240, 80, 45)) {
+    if (isButtonPressed(SCALED_W(150), SCALED_H(240), BTN_MEDIUM_W, BTN_MEDIUM_H)) {
       keyboardScale = (keyboardScale + 1) % NUM_SCALES;
       drawKeyboardMode();
       return;
     }
-    if (isButtonPressed(240, 240, 60, 45)) {
+    if (isButtonPressed(SCALED_W(240), SCALED_H(240), BTN_SMALL_W, BTN_MEDIUM_H)) {
       keyboardKey = (keyboardKey - 1 + 12) % 12;
       drawKeyboardMode();
       return;
     }
-    if (isButtonPressed(310, 240, 60, 45)) {
+    if (isButtonPressed(SCALED_W(310), SCALED_H(240), BTN_SMALL_W, BTN_MEDIUM_H)) {
       keyboardKey = (keyboardKey + 1) % 12;
       drawKeyboardMode();
       return;

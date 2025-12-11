@@ -89,7 +89,8 @@ void drawMenu();
 void showSettingsMenu(bool interactive = true);
 
 // Scalable App Icon System
-// To add new apps:
+// To add new apps, see DEV_NOTES.md for complete step-by-step guide
+// Quick reference:
 // 1. Add new mode to AppMode enum in common_definitions.h
 // 2. Create mode header file (e.g., new_mode.h)
 // 3. Include header in this file
@@ -114,7 +115,7 @@ AppIcon apps[] = {
   {"RNG", "※", 0x07FF, RANDOM_GENERATOR}, // Bright cyan
   {"XY PAD", "◈", 0x1C83, XY_PAD},     // Dark green (row 2)
   {"ARP", "↗", 0x2DC5, ARPEGGIATOR},   // Green
-  {"GRID", "▣", 0x8E88, GRID_PIANO},   // Lime green
+  {"PADS", "▣", 0x8E88, PADS},   // Lime green
   {"CHORD", "⚘", 0xCF8A, AUTO_CHORD},  // Yellow-green
   {"LFO", "", 0xFFE0, LFO},            // Yellow
   {"TB3PO", "😊", 0xFD60, TB3PO},       // Amber (row 3) - acid smiley
@@ -133,7 +134,6 @@ class MIDICallbacks: public BLEServerCallbacks {
       if (currentMode == MENU) {
         drawMenu(); // Redraw menu to clear "BLE WAITING..."
       }
-      updateStatus();
     }
     void onDisconnect(BLEServer* pServer) {
       globalState.bleConnected = false;
@@ -142,7 +142,6 @@ class MIDICallbacks: public BLEServerCallbacks {
       if (currentMode == MENU) {
         drawMenu(); // Redraw menu to show "BLE WAITING..."
       }
-      updateStatus();
       
       // Stop all notes using threaded MIDI (more reliable than loop)
       stopAllModes();
@@ -254,17 +253,17 @@ void initSDCard() {
 void showSDCardInfo() {
   tft.fillScreen(THEME_BG);
   tft.setTextColor(THEME_PRIMARY, THEME_BG);
-  tft.drawCentreString("SD CARD INFO", 240, 20, 4);
+  tft.drawCentreString("SD CARD INFO", SCREEN_WIDTH/2, 20, 4);
   
   int y = 70;
   int lineHeight = 25;
   
   if (!sdCardAvailable) {
     tft.setTextColor(THEME_ERROR, THEME_BG);
-    tft.drawCentreString("NO SD CARD DETECTED", 240, y, 2);
+    tft.drawCentreString("NO SD CARD DETECTED", SCREEN_WIDTH/2, y, 2);
     tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
     y += lineHeight * 2;
-    tft.drawCentreString("Check card is inserted", 240, y, 2);
+    tft.drawCentreString("Check card is inserted", SCREEN_WIDTH/2, y, 2);
   } else {
     // Remount to get fresh stats
     SD.begin(SD_CS);
@@ -316,18 +315,20 @@ void showSDCardInfo() {
     
     y += barHeight + 10;
     tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
-    tft.drawCentreString(String((int)(usagePercent * 100)) + "% used", 240, y, 2);
+    tft.drawCentreString(String((int)(usagePercent * 100)) + "% used", SCREEN_WIDTH/2, y, 2);
     
     SD.end(); // Release SPI
   }
   
   // Back button
-  drawRoundButton(190, 260, 100, 35, "BACK", THEME_PRIMARY);
+  int backBtnX3 = (SCREEN_WIDTH - 100) / 2;
+  int backBtnY3 = SCREEN_HEIGHT - 60;
+  drawRoundButton(backBtnX3, backBtnY3, 100, 35, "BACK", THEME_PRIMARY);
   
   // Wait for back button
   while (true) {
     updateTouch();
-    if (touch.justPressed && isButtonPressed(190, 260, 100, 35)) {
+    if (touch.justPressed && isButtonPressed(backBtnX3, backBtnY3, 100, 35)) {
       drawMenu();
       return;
     }
@@ -434,17 +435,17 @@ void cycleModesForScreenshots() {
   // Cycle through all modes for visual inspection and screenshot capture
   tft.fillScreen(THEME_BG);
   tft.setTextColor(THEME_PRIMARY, THEME_BG);
-  tft.drawCentreString("CYCLING MODES", 240, 20, 4);
+  tft.drawCentreString("CYCLING MODES", SCREEN_WIDTH/2, 20, 4);
   tft.setTextColor(THEME_TEXT, THEME_BG);
-  tft.drawCentreString("Saving screenshots to SD", 240, 60, 2);
+  tft.drawCentreString("Saving screenshots to SD", SCREEN_WIDTH/2, 60, 2);
   tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
-  tft.drawCentreString("Hold 3 seconds to skip", 240, 90, 2);
+  tft.drawCentreString("Hold 3 seconds to skip", SCREEN_WIDTH/2, 90, 2);
   
   AppMode modes[] = {KEYBOARD, SEQUENCER, BOUNCING_BALL, PHYSICS_DROP, 
-                     RANDOM_GENERATOR, XY_PAD, ARPEGGIATOR, GRID_PIANO, 
+                     RANDOM_GENERATOR, XY_PAD, ARPEGGIATOR, PADS, 
                      AUTO_CHORD, LFO, TB3PO, GRIDS, RAGA, EUCLIDEAN, MORPH};
   String modeNames[] = {"KEYBOARD", "SEQUENCER", "BOUNCING BALL", "PHYSICS DROP",
-                        "RANDOM GEN", "XY PAD", "ARPEGGIATOR", "GRID PIANO",
+                        "RANDOM GEN", "XY PAD", "ARPEGGIATOR", "PADS",
                         "AUTO CHORD", "LFO", "TB3PO", "GRIDS", "RAGA", "EUCLIDEAN", "MORPH"};
   
   // First capture main menu
@@ -486,7 +487,8 @@ void cycleModesForScreenshots() {
   tft.drawCentreString("Device: CYD MIDI", SCREEN_WIDTH/2, 160, 2);
   String mac = BLEDevice::getAddress().toString().c_str();
   tft.drawCentreString("MAC: " + mac, SCREEN_WIDTH/2, 190, 2);
-  drawRoundButton(190, 240, 100, 35, "BACK", THEME_PRIMARY);
+  int backBtnX2 = (SCREEN_WIDTH - 100) / 2;
+  drawRoundButton(backBtnX2, SCREEN_HEIGHT - 80, 100, 35, "BACK", THEME_PRIMARY);
   delay(1000);
   Serial.println("[Screenshot 3/18] Capturing: 02_bluetooth_status");
   saveScreenshot("02_bluetooth_status");
@@ -549,7 +551,7 @@ void cycleModesForScreenshots() {
     if (skipMode) {
       tft.fillScreen(THEME_WARNING);
       tft.setTextColor(THEME_BG, THEME_WARNING);
-      tft.drawCentreString("SKIPPED", 240, 150, 4);
+      tft.drawCentreString("SKIPPED", SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 4);
       delay(500);
     }
   }
@@ -572,22 +574,23 @@ void cycleModesForScreenshots() {
 void showSettingsMenu(bool interactive) {
   tft.fillScreen(THEME_BG);
   tft.setTextColor(THEME_PRIMARY, THEME_BG);
-  tft.drawCentreString("SETTINGS", 240, 12, 4);
+  tft.drawCentreString("SETTINGS", SCREEN_WIDTH/2, SCALED_H(12), 4);
   
-  int btnY = 50;
-  int btnH = 45;  // Good size for touch without being too large
-  int btnW = 440;
-  int btnX = 20;
-  int spacing = 6;
+  int btnY = SCALED_H(50);
+  int btnH = BTN_MEDIUM_H;  // Good size for touch without being too large
+  int btnW = SCALED_W(440);
+  int btnX = SCALED_W(20);
+  int spacing = SCALED_H(6);
   
   // Calibrate Touch button
   drawRoundButton(btnX, btnY, btnW, btnH, "CALIBRATE TOUCH", THEME_PRIMARY);
   btnY += btnH + spacing;
   
   // MIDI Channel setting
-  drawRoundButton(btnX, btnY, 140, btnH, "CH -", THEME_WARNING);
-  drawRoundButton(btnX + 150, btnY, 140, btnH, "CH: " + String(midiChannel), THEME_SUCCESS);
-  drawRoundButton(btnX + 300, btnY, 140, btnH, "CH +", THEME_WARNING);
+  int channelBtnW = SCALED_W(140);
+  drawRoundButton(btnX, btnY, channelBtnW, btnH, "CH -", THEME_WARNING);
+  drawRoundButton(btnX + SCALED_W(150), btnY, channelBtnW, btnH, "CH: " + String(midiChannel), THEME_SUCCESS);
+  drawRoundButton(btnX + SCALED_W(300), btnY, channelBtnW, btnH, "CH +", THEME_WARNING);
   btnY += btnH + spacing;
   
   // BLE Enable/Disable
@@ -601,7 +604,7 @@ void showSettingsMenu(bool interactive) {
   btnY += btnH + spacing;
   
   // Back button - centered at bottom
-  drawRoundButton(180, 270, 120, 45, "BACK", THEME_PRIMARY);
+  drawRoundButton((SCREEN_WIDTH - SCALED_W(120)) / 2, SCALED_H(270), SCALED_W(120), BTN_MEDIUM_H, "BACK", THEME_PRIMARY);
   
   // If not interactive (screenshot mode), just return
   if (!interactive) return;
@@ -614,8 +617,9 @@ void showSettingsMenu(bool interactive) {
       continue;
     }
     
-    // Calibrate Touch (y=50)
-    if (isButtonPressed(btnX, 50, btnW, btnH)) {
+    // Calibrate Touch
+    int currentY = SCALED_H(50);
+    if (isButtonPressed(btnX, currentY, btnW, btnH)) {
       resetCalibration();
       if (performCalibration()) {
         saveCalibration();
@@ -624,22 +628,24 @@ void showSettingsMenu(bool interactive) {
       return;
     }
     
-    // MIDI Channel - (y=101: 50+45+6)
-    if (isButtonPressed(btnX, 101, 140, btnH)) {
+    // MIDI Channel -
+    currentY = SCALED_H(50) + btnH + spacing;
+    if (isButtonPressed(btnX, currentY, SCALED_W(140), btnH)) {
       if (midiChannel > 1) midiChannel--;
       showSettingsMenu();
       return;
     }
     
-    // MIDI Channel + (y=101: same row)
-    if (isButtonPressed(btnX + 300, 101, 140, btnH)) {
+    // MIDI Channel +
+    if (isButtonPressed(btnX + SCALED_W(300), currentY, SCALED_W(140), btnH)) {
       if (midiChannel < 16) midiChannel++;
       showSettingsMenu();
       return;
     }
     
-    // BLE Toggle (y=152: 101+45+6)
-    if (isButtonPressed(btnX, 152, btnW, btnH)) {
+    // BLE Toggle
+    currentY += btnH + spacing;
+    if (isButtonPressed(btnX, currentY, btnW, btnH)) {
       bleEnabled = !bleEnabled;
       if (bleEnabled) {
         BLEDevice::startAdvertising();
@@ -652,15 +658,16 @@ void showSettingsMenu(bool interactive) {
       return;
     }
     
-    // Screenshot Mode Cycling (y=203: 152+45+6)
-    if (isButtonPressed(btnX, 203, btnW, btnH)) {
+    // Screenshot Mode Cycling
+    currentY += btnH + spacing;
+    if (isButtonPressed(btnX, currentY, btnW, btnH)) {
       cycleModesForScreenshots();
       showSettingsMenu();
       return;
     }
     
     // Back button
-    if (isButtonPressed(180, 270, 120, 45)) {
+    if (isButtonPressed((SCREEN_WIDTH - SCALED_W(120)) / 2, SCALED_H(270), SCALED_W(120), BTN_MEDIUM_H)) {
       drawMenu();
       return;
     }
@@ -758,7 +765,6 @@ void setup() {
   initializeMorphMode();
   
   drawMenu();
-  updateStatus();
   Serial.println("MIDI Controller ready!");
   Serial.println("Touch settings cog in top-left to access configuration");
 }
@@ -766,9 +772,6 @@ void setup() {
 void loop() {
   // Update touch state (using existing calibration logic)
   updateTouch();
-  
-  // TODO: Switch to threaded touch input
-  // touch = TouchThread::getState();
   
   // Handle web server requests
   handleWebServer();
@@ -810,7 +813,7 @@ void loop() {
           longPressTriggered = true;
           tft.fillScreen(THEME_WARNING);
           tft.setTextColor(THEME_BG, THEME_WARNING);
-          tft.drawCentreString("CALIBRATION MODE", 240, 140, 4);
+          tft.drawCentreString("CALIBRATION MODE", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 20, 4);
           delay(500);
           resetCalibration();
           if (performCalibration()) {
@@ -851,7 +854,7 @@ void loop() {
     case ARPEGGIATOR:
       handleArpeggiatorMode();
       break;
-    case GRID_PIANO:
+    case PADS:
       handleGridPianoMode();
       break;
     case AUTO_CHORD:
@@ -888,15 +891,15 @@ void drawMenu() {
   
   // Subtitle under header
   tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
-  tft.drawCentreString("Cheap Yellow Display", 240, 52, 2);
+  tft.drawCentreString("Cheap Yellow Display", SCREEN_WIDTH/2, SCALED_H(52), 2);
   
   // Dynamic grid layout - 5 icons per row with bigger graphics
-  int iconSize = 85;   // Button size stays the same
-  int spacing = 5;     // Reduced spacing between columns
-  int rowSpacing = 2;  // Minimal spacing between rows to fit all 3 rows
+  int iconSize = SCALED_W(85);   // Button size scales with screen
+  int spacing = SCALED_W(5);     // Reduced spacing between columns
+  int rowSpacing = SCALED_H(2);  // Minimal spacing between rows to fit all 3 rows
   int cols = 5;        // 5 icons per row
   int startX = (SCREEN_WIDTH - (cols * iconSize + (cols-1) * spacing)) / 2;
-  int startY = 58;     // Start slightly higher to fit 3 rows
+  int startY = SCALED_H(58);     // Start slightly higher to fit 3 rows
   
   // Draw all apps (now includes TB3PO as 11th app)
   for (int i = 0; i < numApps; i++) {
@@ -999,7 +1002,7 @@ void drawAppGraphics(AppMode mode, int x, int y, int iconSize) {
         }
       }
       break;
-    case GRID_PIANO: // GRID - grid pattern
+    case PADS: // PADS - grid pattern
       {
         int cellW = 10, cellH = 8, gapX = 2, gapY = 4;
         int totalW = 4 * cellW + 3 * gapX;
@@ -1141,28 +1144,28 @@ void handleMenuTouch() {
   Serial.printf("Menu touch at: (%d,%d)\n", touch.x, touch.y);
   
   // Check settings icon touch (top left) - extra large touch area for easier access
-  if (isButtonPressed(5, 5, 50, 50)) {
+  if (isButtonPressed(SCALED_W(5), SCALED_H(5), SCALED_W(50), SCALED_H(50))) {
     Serial.println("Settings icon tapped!");
     showSettingsMenu();
     return;
   }
   
   // Check Bluetooth icon touch - larger touch area
-  if (isButtonPressed(405, 10, 35, 35)) {
+  if (isButtonPressed(SCREEN_WIDTH - SCALED_W(75), SCALED_H(10), SCALED_W(35), SCALED_H(35))) {
     // Show BLE status
     tft.fillScreen(THEME_BG);
     tft.setTextColor(THEME_PRIMARY, THEME_BG);
-    tft.drawCentreString("BLUETOOTH STATUS", 240, 60, 4);
+    tft.drawCentreString("BLUETOOTH STATUS", SCREEN_WIDTH/2, SCALED_H(60), 4);
     tft.setTextColor(THEME_TEXT, THEME_BG);
-    tft.drawCentreString(globalState.bleConnected ? "Connected" : "Waiting for connection", SCREEN_WIDTH/2, 120, 2);
+    tft.drawCentreString(globalState.bleConnected ? "Connected" : "Waiting for connection", SCREEN_WIDTH/2, SCALED_H(120), 2);
     tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
-    tft.drawCentreString("Device: CYD MIDI", 240, 160, 2);
+    tft.drawCentreString("Device: CYD MIDI", SCREEN_WIDTH/2, SCALED_H(160), 2);
     String mac = BLEDevice::getAddress().toString().c_str();
-    tft.drawCentreString("MAC: " + mac, 240, 190, 2);
-    drawRoundButton(190, 240, 100, 35, "BACK", THEME_PRIMARY);
+    tft.drawCentreString("MAC: " + mac, SCREEN_WIDTH/2, SCALED_H(190), 2);
+    drawRoundButton((SCREEN_WIDTH - BTN_LARGE_W) / 2, SCALED_H(240), BTN_LARGE_W, BTN_SMALL_H, "BACK", THEME_PRIMARY);
     while (true) {
       updateTouch();
-      if (touch.justPressed && isButtonPressed(190, 240, 100, 35)) {
+      if (touch.justPressed && isButtonPressed((SCREEN_WIDTH - BTN_LARGE_W) / 2, SCALED_H(240), BTN_LARGE_W, BTN_SMALL_H)) {
         drawMenu();
         return;
       }
@@ -1171,17 +1174,17 @@ void handleMenuTouch() {
   }
   
   // Check SD icon touch (top right) - larger touch area
-  if (isButtonPressed(440, 10, 35, 35)) {
+  if (isButtonPressed(SCREEN_WIDTH - SCALED_W(40), SCALED_H(10), SCALED_W(35), SCALED_H(35))) {
     showSDCardInfo();
     return;
   }
   
-  int iconSize = 85;  // Match drawMenu icon size (updated for better touch)
-  int spacing = 5;    // Match drawMenu spacing (reduced)
-  int rowSpacing = 2; // Match drawMenu row spacing
+  int iconSize = SCALED_W(85);  // Match drawMenu icon size (updated for better touch)
+  int spacing = SCALED_W(5);    // Match drawMenu spacing (reduced)
+  int rowSpacing = SCALED_H(2); // Match drawMenu row spacing
   int cols = 5;       // 5 icons per row
   int startX = (SCREEN_WIDTH - (cols * iconSize + (cols-1) * spacing)) / 2;
-  int startY = 58;    // Match drawMenu startY
+  int startY = SCALED_H(58);    // Match drawMenu startY
   
   for (int i = 0; i < numApps; i++) {
     int col = i % cols;
@@ -1225,7 +1228,7 @@ void enterMode(AppMode mode) {
     case ARPEGGIATOR:
       drawArpeggiatorMode();
       break;
-    case GRID_PIANO:
+    case PADS:
       drawGridPianoMode();
       break;
     case AUTO_CHORD:
@@ -1250,12 +1253,10 @@ void enterMode(AppMode mode) {
       initializeMorphMode();
       break;
   }
-  updateStatus();
 }
 
 void exitToMenu() {
   currentMode = MENU;
   stopAllModes();
   drawMenu();
-  updateStatus();
 }

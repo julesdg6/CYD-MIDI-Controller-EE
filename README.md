@@ -95,7 +95,7 @@ Advanced touchscreen Bluetooth MIDI controller for the ESP32-2432S028R "Cheap Ye
 - **RNG** - Random music generator for creative exploration
 - **XY PAD** - Touch-controlled X/Y pad for real-time parameter control
 - **ARP** - Arpeggiator with chord-based patterns
-- **GRID** - Grid piano with 4ths layout for unique playing style
+- **PADS** - Grid piano with 4ths layout for unique playing style
 - **CHORD** - Auto-chord mode with diatonic chord progressions
 - **LFO** - Low-frequency oscillator for modulation effects
 
@@ -126,18 +126,22 @@ Advanced touchscreen Bluetooth MIDI controller for the ESP32-2432S028R "Cheap Ye
 
 All boards available for ~$15 from AliExpress/Amazon
 
+> **📌 Pin Map:** Complete pin assignments for display, touch, SD card, and available expansion pins are documented in [BUILD.md - Pin Map Reference](BUILD.md#pin-map-reference)
+
 ### Additional
 
 - **MicroSD Card** (optional) - For screenshot capture, WiFi config storage, and web file management
 - **PlatformIO** or **Arduino IDE** with ESP32 support
 - **WiFi Network** (optional) - For web server and remote control features
+- **Serial MIDI (future)** - Available GPIOs for M5 MIDI breakout or DIN-5 connector (see pin map)
 
 ### Recent Enhancements
 
+- ✅ **Multi-resolution support** - Automatic screen scaling for 480×320, 320×240 displays
 - ✅ **Larger touch targets** - Minimum 45px buttons for better accuracy
 - ✅ **Fixed touch detection** - Resolved Y-coordinate mismatches in all modes
 - ✅ **Improved layouts** - Settings menu, Grid Piano (45×32 cells), Auto Chord, Arpeggiator
-- ✅ **Better spacing** - No overlapping buttons, optimized for 480×320 display
+- ✅ **Better spacing** - No overlapping buttons, optimized layouts
 - ✅ **Header icons** - BLE status, SD card indicator, and BPM display on main menu
 - ✅ **MIDI channel support** - Configurable per-session MIDI channels (1-16)
 - ✅ **Expanded flash memory** - 3.1MB app partition for advanced features
@@ -318,6 +322,8 @@ Common working speeds: `115200`, `230400`, `460800`, `921600`
 - Verify correct board selection in `platformio.ini`
 - Post complete error output to GitHub issues with board model and OS
 
+**Note**: Screen dimensions are automatically configured based on your board selection. All UI elements scale to match your display size.
+
 ### Option B: Arduino IDE
 
 #### 1. Add ESP32 Board Support
@@ -348,6 +354,8 @@ Replace the `libraries/TFT_eSPI/User_Setup.h` with the `User_Setup.h` from the r
 ## Usage
 
 ### First Run - Touch Calibration
+
+On first boot, the device will automatically start touch calibration. Follow the on-screen prompts to touch each crosshair accurately. **Important**: If you change display size (e.g., from 3.5" to 2.8"), you must re-run calibration from the Settings menu for accurate touch detection.
 
 ### Settings Menu
 
@@ -384,6 +392,7 @@ Access at `http://[device-ip]` when connected to WiFi:
 - **WiFi not connecting**: Create `/wifi_config.txt` on SD card with SSID on line 1, password on line 2
 - **Web server not accessible**: Check device IP address on serial monitor or connect to AP mode "CYD-MIDI" (password: midi1234)
 - **Screenshots failing**: Ensure SD card has sufficient space and `/screenshots/` directory exists
+- **Hardware modifications**: Check [BUILD.md - Pin Map Reference](BUILD.md#pin-map-reference) for complete pin assignments before adding external hardware
 
 ## Development
 
@@ -418,6 +427,10 @@ src/
 ## Contributing
 
 Contributions welcome! This project has diverged significantly from the original, focusing on improved UX for capacitive touchscreens.
+
+### For Developers
+
+Want to add a new mode? See **[DEV_NOTES.md](DEV_NOTES.md)** for a complete step-by-step guide on creating new interactive modes.
 
 ## License
 

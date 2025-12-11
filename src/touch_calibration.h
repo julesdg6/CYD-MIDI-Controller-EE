@@ -4,6 +4,7 @@
 #include <EEPROM.h>
 #include <TFT_eSPI.h>
 #include <XPT2046_Touchscreen.h>
+#include "common_definitions.h"
 
 #define EEPROM_SIZE 64
 #define CALIBRATION_MAGIC 0xCAFE
@@ -42,7 +43,7 @@ inline void drawCalibrationCrosshair(int x, int y, uint16_t color) {
 inline bool waitForTouch(int targetX, int targetY, uint16_t &rawX, uint16_t &rawY) {
   // Draw instruction
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawCentreString("Touch the crosshair", 240, 280, 4);
+  tft.drawCentreString("Touch the crosshair", SCREEN_WIDTH/2, SCREEN_HEIGHT - 40, 4);
   
   unsigned long timeout = millis() + 30000; // 30 second timeout
   bool touched = false;
@@ -59,8 +60,8 @@ inline bool waitForTouch(int targetX, int targetY, uint16_t &rawX, uint16_t &raw
         
         // Visual feedback
         drawCalibrationCrosshair(targetX, targetY, TFT_GREEN);
-        tft.fillRect(0, 270, 480, 50, TFT_BLACK);
-        tft.drawCentreString("Got it!", 240, 290, 4);
+        tft.fillRect(0, SCREEN_HEIGHT - 50, SCREEN_WIDTH, 50, TFT_BLACK);
+        tft.drawCentreString("Got it!", SCREEN_WIDTH/2, SCREEN_HEIGHT - 30, 4);
         delay(500);
         
         // Wait for release
@@ -79,10 +80,10 @@ inline bool waitForTouch(int targetX, int targetY, uint16_t &rawX, uint16_t &raw
 inline bool performCalibration() {
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-  tft.drawCentreString("TOUCHSCREEN CALIBRATION", 240, 20, 4);
+  tft.drawCentreString("TOUCHSCREEN CALIBRATION", SCREEN_WIDTH/2, 20, 4);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawCentreString("Touch each crosshair", 240, 60, 2);
-  tft.drawCentreString("as accurately as possible", 240, 85, 2);
+  tft.drawCentreString("Touch each crosshair", SCREEN_WIDTH/2, 60, 2);
+  tft.drawCentreString("as accurately as possible", SCREEN_WIDTH/2, 85, 2);
   
   delay(2000);
   
@@ -93,9 +94,9 @@ inline bool performCalibration() {
   };
   
   CalPoint points[3] = {
-    {40, 40, 0, 0},      // Top-left
-    {440, 160, 0, 0},    // Right-center
-    {40, 280, 0, 0}      // Bottom-left
+    {40, 40, 0, 0},                              // Top-left
+    {SCREEN_WIDTH - 40, SCREEN_HEIGHT/2, 0, 0},  // Right-center
+    {40, SCREEN_HEIGHT - 40, 0, 0}               // Bottom-left
   };
   
   // Collect touch data for each point
@@ -104,7 +105,7 @@ inline bool performCalibration() {
     tft.setTextColor(TFT_CYAN, TFT_BLACK);
     char msg[32];
     sprintf(msg, "Point %d of 3", i + 1);
-    tft.drawCentreString(msg, 240, 20, 4);
+    tft.drawCentreString(msg, SCREEN_WIDTH/2, 20, 4);
     
     drawCalibrationCrosshair(points[i].screenX, points[i].screenY, TFT_RED);
     
@@ -112,7 +113,7 @@ inline bool performCalibration() {
                       points[i].rawX, points[i].rawY)) {
       tft.fillScreen(TFT_BLACK);
       tft.setTextColor(TFT_RED, TFT_BLACK);
-      tft.drawCentreString("CALIBRATION TIMEOUT", 240, 150, 4);
+      tft.drawCentreString("CALIBRATION TIMEOUT", SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 4);
       delay(2000);
       return false;
     }
@@ -153,29 +154,31 @@ inline bool performCalibration() {
   // Detect rotation by testing a fourth point
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_CYAN, TFT_BLACK);
-  tft.drawCentreString("Testing rotation...", 240, 20, 4);
-  tft.drawCentreString("Touch the crosshair", 240, 60, 2);
+  tft.drawCentreString("Testing rotation...", SCREEN_WIDTH/2, 20, 4);
+  tft.drawCentreString("Touch the crosshair", SCREEN_WIDTH/2, 60, 2);
   
   // Test point at bottom-right (opposite of top-left)
   uint16_t testRawX, testRawY;
-  drawCalibrationCrosshair(440, 280, TFT_YELLOW);
+  int testPointX = SCREEN_WIDTH - 40;
+  int testPointY = SCREEN_HEIGHT - 40;
+  drawCalibrationCrosshair(testPointX, testPointY, TFT_YELLOW);
   
-  if (waitForTouch(440, 280, testRawX, testRawY)) {
+  if (waitForTouch(testPointX, testPointY, testRawX, testRawY)) {
     // Map test point with current calibration
-    int testX = map(testRawX, calibration.x_min, calibration.x_max, 0, 480);
-    int testY = map(testRawY, calibration.y_min, calibration.y_max, 0, 320);
+    int testX = map(testRawX, calibration.x_min, calibration.x_max, 0, SCREEN_WIDTH);
+    int testY = map(testRawY, calibration.y_min, calibration.y_max, 0, SCREEN_HEIGHT);
     
     // Determine rotation based on where the test point landed
-    // Expected: around (440, 280)
+    // Expected: around bottom-right quadrant
     // If inverted: around (40, 40)
     
-    if (testX < 240 && testY < 160) {
+    if (testX < SCREEN_WIDTH/2 && testY < SCREEN_HEIGHT/2) {
       // Touch landed in top-left quadrant instead of bottom-right - 180° rotation
       calibration.rotation = 2;
-    } else if (testX < 240 && testY > 160) {
+    } else if (testX < SCREEN_WIDTH/2 && testY > SCREEN_HEIGHT/2) {
       // Touch landed in bottom-left quadrant instead of bottom-right - possible 90° rotation
       calibration.rotation = 3;
-    } else if (testX > 240 && testY < 160) {
+    } else if (testX > SCREEN_WIDTH/2 && testY < SCREEN_HEIGHT/2) {
       // Touch landed in top-right quadrant instead of bottom-right - possible 270° rotation
       calibration.rotation = 1;
     } else {
@@ -193,18 +196,18 @@ inline bool performCalibration() {
   // Show results
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_GREEN, TFT_BLACK);
-  tft.drawCentreString("CALIBRATION COMPLETE", 240, 100, 4);
+  tft.drawCentreString("CALIBRATION COMPLETE", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 60, 4);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   char buffer[64];
   sprintf(buffer, "X: %d - %d", calibration.x_min, calibration.x_max);
-  tft.drawCentreString(buffer, 240, 140, 2);
+  tft.drawCentreString(buffer, SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 20, 2);
   sprintf(buffer, "Y: %d - %d", calibration.y_min, calibration.y_max);
-  tft.drawCentreString(buffer, 240, 165, 2);
+  tft.drawCentreString(buffer, SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 5, 2);
   sprintf(buffer, "Swap XY: %s", calibration.swap_xy ? "Yes" : "No");
-  tft.drawCentreString(buffer, 240, 190, 2);
+  tft.drawCentreString(buffer, SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 30, 2);
   sprintf(buffer, "Rotation: %d deg", calibration.rotation * 90);
-  tft.drawCentreString(buffer, 240, 215, 2);
-  tft.drawCentreString("Saving to memory...", 240, 250, 2);
+  tft.drawCentreString(buffer, SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 55, 2);
+  tft.drawCentreString("Saving to memory...", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 90, 2);
   
   delay(2000);
   
@@ -287,9 +290,9 @@ inline void resetCalibration() {
 inline void testCalibration() {
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawCentreString("TOUCH TEST MODE", 240, 20, 4);
-  tft.drawCentreString("Touch anywhere to test", 240, 60, 2);
-  tft.drawCentreString("Long press to exit", 240, 85, 2);
+  tft.drawCentreString("TOUCH TEST MODE", SCREEN_WIDTH/2, 20, 4);
+  tft.drawCentreString("Touch anywhere to test", SCREEN_WIDTH/2, 60, 2);
+  tft.drawCentreString("Long press to exit", SCREEN_WIDTH/2, 85, 2);
   
   unsigned long lastTouch = 0;
   unsigned long touchStart = 0;
@@ -305,7 +308,7 @@ inline void testCalibration() {
       // Long press to exit (2 seconds)
       if (millis() - touchStart > 2000) {
         tft.fillScreen(TFT_BLACK);
-        tft.drawCentreString("Exiting test mode...", 240, 160, 4);
+        tft.drawCentreString("Exiting test mode...", SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 4);
         delay(1000);
         return;
       }
@@ -320,24 +323,24 @@ inline void testCalibration() {
         rawY = temp;
       }
       
-      int mappedX = map(rawX, calibration.x_min, calibration.x_max, 0, 480);
-      int mappedY = map(rawY, calibration.y_min, calibration.y_max, 0, 320);
+      int mappedX = map(rawX, calibration.x_min, calibration.x_max, 0, SCREEN_WIDTH);
+      int mappedY = map(rawY, calibration.y_min, calibration.y_max, 0, SCREEN_HEIGHT);
       
       // Constrain to screen bounds
-      mappedX = constrain(mappedX, 0, 479);
-      mappedY = constrain(mappedY, 0, 319);
+      mappedX = constrain(mappedX, 0, SCREEN_WIDTH - 1);
+      mappedY = constrain(mappedY, 0, SCREEN_HEIGHT - 1);
       
       // Draw crosshair at touch point
       tft.fillCircle(mappedX, mappedY, 3, TFT_RED);
       
       // Show coordinates
-      tft.fillRect(0, 110, 480, 60, TFT_BLACK);
+      tft.fillRect(0, 110, SCREEN_WIDTH, 60, TFT_BLACK);
       tft.setTextColor(TFT_CYAN, TFT_BLACK);
       char buffer[64];
       sprintf(buffer, "Raw: %d, %d", p.x, p.y);
-      tft.drawCentreString(buffer, 240, 120, 2);
+      tft.drawCentreString(buffer, SCREEN_WIDTH/2, 120, 2);
       sprintf(buffer, "Mapped: %d, %d", mappedX, mappedY);
-      tft.drawCentreString(buffer, 240, 145, 2);
+      tft.drawCentreString(buffer, SCREEN_WIDTH/2, 145, 2);
       
       lastTouch = millis();
     } else {

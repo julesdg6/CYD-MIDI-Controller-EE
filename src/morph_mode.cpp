@@ -283,6 +283,7 @@ void initializeMorphMode() {
   morphState.trailIndex = 0;
   
   Serial.println("MORPH mode initialized");
+  drawMorphMode();
 }
 
 void drawMorphMode() {

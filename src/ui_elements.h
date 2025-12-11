@@ -6,7 +6,6 @@
 
 // UI function declarations
 void updateTouch();
-void updateStatus();
 bool isButtonPressed(int x, int y, int w, int h);
 void drawRoundButton(int x, int y, int w, int h, String text, uint16_t color, bool pressed = false);
 void drawHeader(String title, String subtitle = "");
@@ -48,9 +47,9 @@ inline void updateTouch() {
       rawY = temp;
     }
     
-    // Map using calibrated values
-    int mappedX = map(rawX, calibration.x_min, calibration.x_max, 0, 480);
-    int mappedY = map(rawY, calibration.y_min, calibration.y_max, 0, 320);
+    // Map using calibrated values to screen dimensions
+    int mappedX = map(rawX, calibration.x_min, calibration.x_max, 0, SCREEN_WIDTH);
+    int mappedY = map(rawY, calibration.y_min, calibration.y_max, 0, SCREEN_HEIGHT);
     
     // Apply rotation (default to 0 if not set)
     uint8_t rot = calibration.rotation;
@@ -62,22 +61,22 @@ inline void updateTouch() {
         touch.y = mappedY;
         break;
       case 1:  // 90° clockwise
-        touch.x = 320 - mappedY;
+        touch.x = SCREEN_HEIGHT - mappedY;
         touch.y = mappedX;
         break;
       case 2:  // 180°
-        touch.x = 480 - mappedX;
-        touch.y = 320 - mappedY;
+        touch.x = SCREEN_WIDTH - mappedX;
+        touch.y = SCREEN_HEIGHT - mappedY;
         break;
       case 3:  // 270° clockwise (90° counter-clockwise)
         touch.x = mappedY;
-        touch.y = 480 - mappedX;
+        touch.y = SCREEN_WIDTH - mappedX;
         break;
     }
     
     // Constrain to screen bounds
-    touch.x = constrain(touch.x, 0, 479);
-    touch.y = constrain(touch.y, 0, 319);
+    touch.x = constrain(touch.x, 0, SCREEN_WIDTH - 1);
+    touch.y = constrain(touch.y, 0, SCREEN_HEIGHT - 1);
   }
 }
 
@@ -99,22 +98,18 @@ inline void drawRoundButton(int x, int y, int w, int h, String text, uint16_t co
 }
 
 inline void drawHeader(String title, String subtitle) {
-  tft.fillRect(0, 0, SCREEN_WIDTH, 45, THEME_SURFACE);
-  tft.drawFastHLine(0, 45, SCREEN_WIDTH, THEME_PRIMARY);
+  tft.fillRect(0, 0, SCREEN_WIDTH, SCALED_H(45), THEME_SURFACE);
+  tft.drawFastHLine(0, SCALED_H(45), SCREEN_WIDTH, THEME_PRIMARY);
   
   tft.setTextColor(THEME_TEXT, THEME_SURFACE);
-  tft.drawCentreString(title, SCREEN_WIDTH/2, 8, 4);
+  tft.drawCentreString(title, SCREEN_WIDTH/2, SCALED_H(8), 4);
   
   if (subtitle.length() > 0) {
     tft.setTextColor(THEME_TEXT_DIM, THEME_SURFACE);
-    tft.drawCentreString(subtitle, SCREEN_WIDTH/2, 28, 2);
+    tft.drawCentreString(subtitle, SCREEN_WIDTH/2, SCALED_H(28), 2);
   }
   
-  drawRoundButton(10, 5, 70, 35, "BACK", THEME_ERROR);
-}
-
-inline void updateStatus() {
-  // Status bar removed - no more BLE connection alerts on every screen
+  drawRoundButton(SCALED_W(10), SCALED_H(5), BTN_BACK_W, BTN_BACK_H, "BACK", THEME_ERROR);
 }
 
 inline void drawSettingsIcon(int x, int y) {
@@ -198,24 +193,24 @@ inline void drawBPMIndicator(int x, int y) {
 
 inline void drawModuleHeader(String title, bool showBackButton) {
   // Draw header bar
-  tft.fillRect(0, 0, SCREEN_WIDTH, 45, THEME_SURFACE);
-  tft.drawFastHLine(0, 45, SCREEN_WIDTH, THEME_PRIMARY);
+  tft.fillRect(0, 0, SCREEN_WIDTH, SCALED_H(45), THEME_SURFACE);
+  tft.drawFastHLine(0, SCALED_H(45), SCREEN_WIDTH, THEME_PRIMARY);
   
   // Draw title centered
   tft.setTextColor(THEME_TEXT, THEME_SURFACE);
-  tft.drawCentreString(title, SCREEN_WIDTH/2, 13, 4);
+  tft.drawCentreString(title, SCREEN_WIDTH/2, SCALED_H(13), 4);
   
   // Draw left icon (back button or settings on main menu)
   if (showBackButton) {
-    drawBackIcon(8, 8);
+    drawBackIcon(SCALED_W(8), SCALED_H(8));
   } else {
-    drawSettingsIcon(8, 8);
+    drawSettingsIcon(SCALED_W(8), SCALED_H(8));
   }
   
   // Draw right-side status icons
-  drawBluetoothIcon(410, 8);  // Bluetooth at far right
-  drawSDCardIcon(380, 10);     // SD card next to Bluetooth
-  drawBPMIndicator(300, 17);   // BPM indicator on the left side
+  drawBluetoothIcon(SCREEN_WIDTH - SCALED_W(70), SCALED_H(8));  // Bluetooth at far right
+  drawSDCardIcon(SCREEN_WIDTH - SCALED_W(100), SCALED_H(10));     // SD card next to Bluetooth
+  drawBPMIndicator(SCREEN_WIDTH - SCALED_W(180), SCALED_H(17));   // BPM indicator on the left side
 }
 
 #endif

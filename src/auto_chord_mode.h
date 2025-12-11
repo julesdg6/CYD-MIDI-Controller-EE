@@ -57,21 +57,22 @@ void drawAutoChordMode() {
   drawChordKeys();
   
   // Controls
-  drawRoundButton(10, 190, 60, 35, "OCT-", THEME_SECONDARY);
-  drawRoundButton(80, 190, 60, 35, "OCT+", THEME_SECONDARY);
-  drawRoundButton(150, 190, 80, 35, "SCALE", THEME_ACCENT);
-  drawRoundButton(240, 190, 80, 35, "CLEAR", THEME_ERROR);
+  int ctrlY = SCALED_H(190);
+  drawRoundButton(SCALED_W(10), ctrlY, BTN_SMALL_W, BTN_SMALL_H, "OCT-", THEME_SECONDARY);
+  drawRoundButton(SCALED_W(80), ctrlY, BTN_SMALL_W, BTN_SMALL_H, "OCT+", THEME_SECONDARY);
+  drawRoundButton(SCALED_W(150), ctrlY, BTN_MEDIUM_W, BTN_SMALL_H, "SCALE", THEME_ACCENT);
+  drawRoundButton(SCALED_W(240), ctrlY, BTN_MEDIUM_W, BTN_SMALL_H, "CLEAR", THEME_ERROR);
   
   // Status
   tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
-  tft.drawString("Oct " + String(chordOctave), 10, 235, 2);
-  tft.drawString("Classic piano chords", 110, 210, 1);
+  tft.drawString("Oct " + String(chordOctave), SCALED_W(10), SCALED_H(235), 2);
+  tft.drawString("Classic piano chords", SCALED_W(110), SCALED_H(210), 1);
 }
 
 void drawChordKeys() {
   int keyWidth = SCREEN_WIDTH / 8;
-  int keyHeight = 100;
-  int keyY = CONTENT_TOP + 20;
+  int keyHeight = SCALED_H(100);
+  int keyY = CONTENT_TOP + SCALED_H(20);
   
   uint16_t degreeColors[] = {
     THEME_PRIMARY, THEME_SECONDARY, THEME_ACCENT, THEME_SUCCESS,
@@ -106,33 +107,34 @@ void drawChordKeys() {
 
 void handleAutoChordMode() {
   // Back button - larger touch area
-  if (touch.justPressed && isButtonPressed(10, 5, 70, 35)) {
+  if (touch.justPressed && isButtonPressed(BACK_BTN_X, BACK_BTN_Y, BTN_BACK_W, BTN_BACK_H)) {
     exitToMenu();
     return;
   }
   
   if (touch.justPressed) {
     // Octave controls
-    if (isButtonPressed(10, 190, 60, 35)) {
+    int ctrlY = SCALED_H(190);
+    if (isButtonPressed(SCALED_W(10), ctrlY, BTN_SMALL_W, BTN_SMALL_H)) {
       chordOctave = max(2, chordOctave - 1);
       drawAutoChordMode();
       return;
     }
-    if (isButtonPressed(80, 190, 60, 35)) {
+    if (isButtonPressed(SCALED_W(80), ctrlY, BTN_SMALL_W, BTN_SMALL_H)) {
       chordOctave = min(6, chordOctave + 1);
       drawAutoChordMode();
       return;
     }
     
     // Scale selector
-    if (isButtonPressed(150, 190, 80, 35)) {
+    if (isButtonPressed(SCALED_W(150), ctrlY, BTN_MEDIUM_W, BTN_SMALL_H)) {
       chordScale = (chordScale + 1) % NUM_SCALES;
       drawAutoChordMode();
       return;
     }
     
     // Clear all
-    if (isButtonPressed(240, 190, 80, 35)) {
+    if (isButtonPressed(SCALED_W(240), ctrlY, BTN_MEDIUM_W, BTN_SMALL_H)) {
       stopAllChords();
       drawChordKeys();
       return;

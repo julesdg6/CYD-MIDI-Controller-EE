@@ -59,6 +59,7 @@ void initializeEuclideanMode() {
   euclideanState.tripletMode = false;
   
   Serial.println("Euclidean mode initialized");
+  drawEuclideanMode();
 }
 
 void drawEuclideanMode() {
