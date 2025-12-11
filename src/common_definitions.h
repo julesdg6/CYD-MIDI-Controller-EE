@@ -17,9 +17,24 @@
 #define THEME_TEXT       0xFFFF
 #define THEME_TEXT_DIM   0x8410
 
-// Screen dimensions
-#define SCREEN_WIDTH     480
-#define SCREEN_HEIGHT    320
+// Screen dimensions - use TFT library defines if available, otherwise default to 480×320
+// Note: TFT_WIDTH/HEIGHT are portrait orientation, we use landscape (swap them)
+#ifndef SCREEN_WIDTH
+  #ifdef TFT_HEIGHT
+    #define SCREEN_WIDTH TFT_HEIGHT
+  #else
+    #define SCREEN_WIDTH 480
+  #endif
+#endif
+
+#ifndef SCREEN_HEIGHT
+  #ifdef TFT_WIDTH
+    #define SCREEN_HEIGHT TFT_WIDTH
+  #else
+    #define SCREEN_HEIGHT 320
+  #endif
+#endif
+
 #define CONTENT_TOP      50  // Below header
 
 // UI Element Size Scaling

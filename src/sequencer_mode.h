@@ -77,11 +77,11 @@ void drawSequencerGrid() {
   uint16_t trackColors[] = {THEME_ERROR, THEME_WARNING, THEME_PRIMARY, THEME_ACCENT};
   
   for (int track = 0; track < SEQ_TRACKS; track++) {
-    int y = gridY + track * (cellH + spacing + 3);
+    int y = gridY + track * (cellH + spacing + SCALED_H(3));
     
     // Track name with color coding
     tft.setTextColor(trackColors[track], THEME_BG);
-    tft.drawString(trackLabels[track], gridX, y + 12, 1);
+    tft.drawString(trackLabels[track], gridX, y + SCALED_H(12), 1);
     
     // Steps - 16 steps in 808 style
     for (int step = 0; step < SEQ_STEPS; step++) {
