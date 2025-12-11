@@ -34,6 +34,9 @@ config.private.*
 *.map
 _codeql_detected_source_root
 
+# CodeQL
+_codeql_detected_source_root
+
 # Screenshots (optional - uncomment if you want to exclude)
 # screenshots/
 # assets/screenshots/

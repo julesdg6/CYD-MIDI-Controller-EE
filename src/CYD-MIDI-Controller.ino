@@ -115,7 +115,7 @@ AppIcon apps[] = {
   {"RNG", "※", 0x07FF, RANDOM_GENERATOR}, // Bright cyan
   {"XY PAD", "◈", 0x1C83, XY_PAD},     // Dark green (row 2)
   {"ARP", "↗", 0x2DC5, ARPEGGIATOR},   // Green
-  {"GRID", "▣", 0x8E88, GRID_PIANO},   // Lime green
+  {"PADS", "▣", 0x8E88, PADS},   // Lime green
   {"CHORD", "⚘", 0xCF8A, AUTO_CHORD},  // Yellow-green
   {"LFO", "", 0xFFE0, LFO},            // Yellow
   {"TB3PO", "😊", 0xFD60, TB3PO},       // Amber (row 3) - acid smiley
@@ -442,10 +442,10 @@ void cycleModesForScreenshots() {
   tft.drawCentreString("Hold 3 seconds to skip", SCREEN_WIDTH/2, 90, 2);
   
   AppMode modes[] = {KEYBOARD, SEQUENCER, BOUNCING_BALL, PHYSICS_DROP, 
-                     RANDOM_GENERATOR, XY_PAD, ARPEGGIATOR, GRID_PIANO, 
+                     RANDOM_GENERATOR, XY_PAD, ARPEGGIATOR, PADS, 
                      AUTO_CHORD, LFO, TB3PO, GRIDS, RAGA, EUCLIDEAN, MORPH};
   String modeNames[] = {"KEYBOARD", "SEQUENCER", "BOUNCING BALL", "PHYSICS DROP",
-                        "RANDOM GEN", "XY PAD", "ARPEGGIATOR", "GRID PIANO",
+                        "RANDOM GEN", "XY PAD", "ARPEGGIATOR", "PADS",
                         "AUTO CHORD", "LFO", "TB3PO", "GRIDS", "RAGA", "EUCLIDEAN", "MORPH"};
   
   // First capture main menu
@@ -854,7 +854,7 @@ void loop() {
     case ARPEGGIATOR:
       handleArpeggiatorMode();
       break;
-    case GRID_PIANO:
+    case PADS:
       handleGridPianoMode();
       break;
     case AUTO_CHORD:
@@ -1002,7 +1002,7 @@ void drawAppGraphics(AppMode mode, int x, int y, int iconSize) {
         }
       }
       break;
-    case GRID_PIANO: // GRID - grid pattern
+    case PADS: // PADS - grid pattern
       {
         int cellW = 10, cellH = 8, gapX = 2, gapY = 4;
         int totalW = 4 * cellW + 3 * gapX;
@@ -1228,7 +1228,7 @@ void enterMode(AppMode mode) {
     case ARPEGGIATOR:
       drawArpeggiatorMode();
       break;
-    case GRID_PIANO:
+    case PADS:
       drawGridPianoMode();
       break;
     case AUTO_CHORD:

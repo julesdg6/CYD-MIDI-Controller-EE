@@ -1,5 +1,5 @@
-#ifndef GRID_PIANO_MODE_H
-#define GRID_PIANO_MODE_H
+#ifndef PADS_MODE_H
+#define PADS_MODE_H
 
 #include "common_definitions.h"
 #include "ui_elements.h"
@@ -44,7 +44,7 @@ void calculateGridLayout() {
 
 void drawGridPianoMode() {
   tft.fillScreen(THEME_BG);
-  drawModuleHeader("GRID PIANO");
+  drawModuleHeader("PADS");
   
   // Grid area
   int cellW = 45;

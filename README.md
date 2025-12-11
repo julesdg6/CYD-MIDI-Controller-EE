@@ -95,7 +95,7 @@ Advanced touchscreen Bluetooth MIDI controller for the ESP32-2432S028R "Cheap Ye
 - **RNG** - Random music generator for creative exploration
 - **XY PAD** - Touch-controlled X/Y pad for real-time parameter control
 - **ARP** - Arpeggiator with chord-based patterns
-- **GRID** - Grid piano with 4ths layout for unique playing style
+- **PADS** - Grid piano with 4ths layout for unique playing style
 - **CHORD** - Auto-chord mode with diatonic chord progressions
 - **LFO** - Low-frequency oscillator for modulation effects
 
