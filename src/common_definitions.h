@@ -17,9 +17,24 @@
 #define THEME_TEXT       0xFFFF
 #define THEME_TEXT_DIM   0x8410
 
-// Screen dimensions
-#define SCREEN_WIDTH     480
-#define SCREEN_HEIGHT    320
+// Screen dimensions - use TFT_eSPI's configured dimensions
+// TFT_WIDTH and TFT_HEIGHT are set via platformio.ini build flags
+#ifndef SCREEN_WIDTH
+  #ifdef TFT_HEIGHT
+    #define SCREEN_WIDTH TFT_HEIGHT  // TFT in landscape mode
+  #else
+    #define SCREEN_WIDTH 480  // Default fallback
+  #endif
+#endif
+
+#ifndef SCREEN_HEIGHT
+  #ifdef TFT_WIDTH
+    #define SCREEN_HEIGHT TFT_WIDTH  // TFT in landscape mode
+  #else
+    #define SCREEN_HEIGHT 320  // Default fallback
+  #endif
+#endif
+
 #define CONTENT_TOP      50  // Below header
 
 // BLE MIDI UUIDs
