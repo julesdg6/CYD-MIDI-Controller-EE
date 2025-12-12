@@ -14,6 +14,14 @@ int keyboardKey = 0;  // Key signature (C=0, C#=1, D=2, etc.)
 int lastKey = -1;
 int lastRow = -1;
 
+// Control buttons
+Button keyboardBtnOctDown;
+Button keyboardBtnOctUp;
+Button keyboardBtnScale;
+Button keyboardBtnKeyDown;
+Button keyboardBtnKeyUp;
+Button keyboardBtnMenu;
+
 // Function declarations
 void initializeKeyboardMode();
 void drawKeyboardMode();
@@ -28,6 +36,33 @@ void initializeKeyboardMode() {
   keyboardKey = 0;
   lastKey = -1;
   lastRow = -1;
+  
+  // Initialize control buttons with responsive positioning
+  int btnY = 240;
+  int btnH = 45;
+  keyboardBtnOctDown.setBounds(10, btnY, 60, btnH);
+  keyboardBtnOctDown.setText("OCT-");
+  keyboardBtnOctDown.setColor(THEME_SECONDARY);
+  
+  keyboardBtnOctUp.setBounds(80, btnY, 60, btnH);
+  keyboardBtnOctUp.setText("OCT+");
+  keyboardBtnOctUp.setColor(THEME_SECONDARY);
+  
+  keyboardBtnScale.setBounds(150, btnY, 80, btnH);
+  keyboardBtnScale.setText("SCALE");
+  keyboardBtnScale.setColor(THEME_ACCENT);
+  
+  keyboardBtnKeyDown.setBounds(240, btnY, 60, btnH);
+  keyboardBtnKeyDown.setText("KEY-");
+  keyboardBtnKeyDown.setColor(THEME_WARNING);
+  
+  keyboardBtnKeyUp.setBounds(310, btnY, 60, btnH);
+  keyboardBtnKeyUp.setText("KEY+");
+  keyboardBtnKeyUp.setColor(THEME_WARNING);
+  
+  keyboardBtnMenu.setBounds(380, btnY, 90, btnH);
+  keyboardBtnMenu.setText("MENU");
+  keyboardBtnMenu.setColor(THEME_PRIMARY);
 }
 
 void drawKeyboardMode() {
@@ -89,6 +124,14 @@ void handleKeyboardMode() {
     exitToMenu();
     return;
   }
+  
+  // Update button visual states
+  keyboardBtnOctDown.draw();
+  keyboardBtnOctUp.draw();
+  keyboardBtnScale.draw();
+  keyboardBtnKeyDown.draw();
+  keyboardBtnKeyUp.draw();
+  keyboardBtnMenu.draw();
   
   if (touch.justPressed) {
     if (isButtonPressed(SCALED_W(10), SCALED_H(240), BTN_SMALL_W, BTN_MEDIUM_H)) {

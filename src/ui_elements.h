@@ -17,6 +17,77 @@ void drawSDCardIcon(int x, int y);
 void drawBPMIndicator(int x, int y);
 void exitToMenu();
 
+// Button class for responsive, stateful buttons
+class Button {
+private:
+  int x, y, w, h;
+  String text;
+  uint16_t color;
+  bool isPressed;
+  bool lastDrawnPressed;
+
+public:
+  Button() : x(0), y(0), w(0), h(0), text(""), color(THEME_PRIMARY), isPressed(false), lastDrawnPressed(false) {}
+  
+  Button(int _x, int _y, int _w, int _h, String _text, uint16_t _color = THEME_PRIMARY)
+    : x(_x), y(_y), w(_w), h(_h), text(_text), color(_color), isPressed(false), lastDrawnPressed(false) {}
+  
+  // Set button position and size (for responsive layouts)
+  void setBounds(int _x, int _y, int _w, int _h) {
+    x = _x;
+    y = _y;
+    w = _w;
+    h = _h;
+  }
+  
+  // Set button text
+  void setText(String _text) {
+    text = _text;
+  }
+  
+  // Set button color
+  void setColor(uint16_t _color) {
+    color = _color;
+  }
+  
+  // Check if button is currently being touched
+  bool isTouched() {
+    return touch.isPressed && 
+           touch.x >= x && touch.x <= x + w && 
+           touch.y >= y && touch.y <= y + h;
+  }
+  
+  // Check if button was just pressed (touch began on button)
+  bool justPressed() {
+    return touch.justPressed && 
+           touch.x >= x && touch.x <= x + w && 
+           touch.y >= y && touch.y <= y + h;
+  }
+  
+  // Draw the button (automatically detects and shows press state)
+  void draw(bool forceRedraw = false) {
+    isPressed = isTouched();
+    
+    // Only redraw if state changed or forced
+    if (forceRedraw || isPressed != lastDrawnPressed) {
+      drawRoundButton(x, y, w, h, text, color, isPressed);
+      lastDrawnPressed = isPressed;
+    }
+  }
+  
+  // Draw with explicit pressed state (for special cases)
+  void drawWithState(bool pressed) {
+    drawRoundButton(x, y, w, h, text, color, pressed);
+    lastDrawnPressed = pressed;
+  }
+  
+  // Get button bounds
+  int getX() const { return x; }
+  int getY() const { return y; }
+  int getWidth() const { return w; }
+  int getHeight() const { return h; }
+};
+
 // UI implementations
 inline void updateTouch() {
   extern TouchCalibration calibration;
@@ -85,7 +156,7 @@ inline bool isButtonPressed(int x, int y, int w, int h) {
 }
 
 inline void drawRoundButton(int x, int y, int w, int h, String text, uint16_t color, bool pressed) {
-  uint16_t bgColor = pressed ? color : THEME_SURFACE;
+  uint16_t bgColor = pressed ? color : THEME_BG;  // Transparent (background color) when not pressed
   uint16_t borderColor = color;
   uint16_t textColor = pressed ? THEME_BG : color;
   
