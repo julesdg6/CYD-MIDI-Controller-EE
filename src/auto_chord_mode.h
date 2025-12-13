@@ -58,23 +58,28 @@ void drawAutoChordMode() {
   
   drawChordKeys();
   
-  // Controls
-  int ctrlY = SCALED_H(190);
-  drawRoundButton(SCALED_W(10), ctrlY, BTN_SMALL_W, BTN_SMALL_H, "OCT-", THEME_SECONDARY);
-  drawRoundButton(SCALED_W(80), ctrlY, BTN_SMALL_W, BTN_SMALL_H, "OCT+", THEME_SECONDARY);
-  drawRoundButton(SCALED_W(150), ctrlY, BTN_MEDIUM_W, BTN_SMALL_H, "SCALE", THEME_ACCENT);
-  drawRoundButton(SCALED_W(240), ctrlY, BTN_MEDIUM_W, BTN_SMALL_H, "CLEAR", THEME_ERROR);
+  // Calculate control button layout from screen dimensions
+  int btnSpacing = 10;
+  int ctrlY = SCREEN_HEIGHT - 80;
+  int btnH = 35;
+  int btnW = (SCREEN_WIDTH - (5 * btnSpacing)) / 4;
+  
+  drawRoundButton(btnSpacing, ctrlY, btnW, btnH, "OCT-", THEME_SECONDARY);
+  drawRoundButton(btnSpacing * 2 + btnW, ctrlY, btnW, btnH, "OCT+", THEME_SECONDARY);
+  drawRoundButton(btnSpacing * 3 + btnW * 2, ctrlY, btnW, btnH, "SCALE", THEME_ACCENT);
+  drawRoundButton(btnSpacing * 4 + btnW * 3, ctrlY, btnW, btnH, "CLEAR", THEME_ERROR);
   
   // Status
   tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
-  tft.drawString("Oct " + String(chordOctave), SCALED_W(10), SCALED_H(235), 2);
-  tft.drawString("Classic piano chords", SCALED_W(110), SCALED_H(210), 1);
+  tft.drawString("Oct " + String(chordOctave), btnSpacing, SCREEN_HEIGHT - 15, 2);
+  tft.drawString("Classic piano chords", SCREEN_WIDTH / 2 - 60, ctrlY - 25, 1);
 }
 
 void drawChordKeys() {
   int keyWidth = SCREEN_WIDTH / 8;
-  int keyHeight = SCALED_H(100);
-  int keyY = CONTENT_TOP + SCALED_H(20);
+  int keyY = CONTENT_TOP + 10;
+  int availableHeight = SCREEN_HEIGHT - keyY - 120; // Leave space for controls
+  int keyHeight = availableHeight;
   
   uint16_t degreeColors[] = {
     THEME_PRIMARY, THEME_SECONDARY, THEME_ACCENT, THEME_SUCCESS,
@@ -93,7 +98,7 @@ void drawChordKeys() {
     
     // Roman numeral
     tft.setTextColor(textColor, bgColor);
-    tft.drawCentreString(diatonicChords[i].name, x + keyWidth/2, keyY + 20, 4);
+    tft.drawCentreString(diatonicChords[i].name, x + keyWidth/2, keyY + keyHeight/3, 4);
     
     // Root note name
     int rootNote;
@@ -103,7 +108,7 @@ void drawChordKeys() {
       rootNote = getNoteInScale(chordScale, i, chordOctave);
     }
     String rootName = getNoteNameFromMIDI(rootNote);
-    tft.drawCentreString(rootName, x + keyWidth/2, keyY + 50, 2);
+    tft.drawCentreString(rootName, x + keyWidth/2, keyY + (keyHeight * 2)/3, 2);
   }
 }
 
@@ -114,38 +119,44 @@ void handleAutoChordMode() {
     return;
   }
   
+  // Calculate button layout from screen dimensions
+  int btnSpacing = 10;
+  int ctrlY = SCREEN_HEIGHT - 80;
+  int btnH = 35;
+  int btnW = (SCREEN_WIDTH - (5 * btnSpacing)) / 4;
+  
   if (touch.justPressed) {
     // Octave controls
-    int ctrlY = SCALED_H(190);
-    if (isButtonPressed(SCALED_W(10), ctrlY, BTN_SMALL_W, BTN_SMALL_H)) {
+    if (isButtonPressed(btnSpacing, ctrlY, btnW, btnH)) {
       chordOctave = max(2, chordOctave - 1);
       drawAutoChordMode();
       return;
     }
-    if (isButtonPressed(SCALED_W(80), ctrlY, BTN_SMALL_W, BTN_SMALL_H)) {
+    if (isButtonPressed(btnSpacing * 2 + btnW, ctrlY, btnW, btnH)) {
       chordOctave = min(6, chordOctave + 1);
       drawAutoChordMode();
       return;
     }
     
     // Scale selector
-    if (isButtonPressed(SCALED_W(150), ctrlY, BTN_MEDIUM_W, BTN_SMALL_H)) {
+    if (isButtonPressed(btnSpacing * 3 + btnW * 2, ctrlY, btnW, btnH)) {
       chordScale = (chordScale + 1) % NUM_SCALES;
       drawAutoChordMode();
       return;
     }
     
     // Clear all
-    if (isButtonPressed(SCALED_W(240), ctrlY, BTN_MEDIUM_W, BTN_SMALL_H)) {
+    if (isButtonPressed(btnSpacing * 4 + btnW * 3, ctrlY, btnW, btnH)) {
       stopAllChords();
       drawChordKeys();
       return;
     }
     
-    // Chord keys - only handle on initial press
+    // Chord keys - calculate dimensions to match drawChordKeys()
     int keyWidth = SCREEN_WIDTH / 8;
-    int keyHeight = 100;
-    int keyY = CONTENT_TOP + 20;  // Match drawChordKeys()
+    int keyY = CONTENT_TOP + 10;
+    int availableHeight = SCREEN_HEIGHT - keyY - 120;
+    int keyHeight = availableHeight;
     
     for (int i = 0; i < 8; i++) {
       int x = i * keyWidth;

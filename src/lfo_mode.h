@@ -56,10 +56,11 @@ void drawLFOMode() {
 
 void drawLFOControls() {
   int y = CONTENT_TOP + 10;
-  int spacing = 35;
+  int spacing = (SCREEN_HEIGHT - CONTENT_TOP - 100) / 4; // Distribute vertically
+  int btnSpacing = 10;
   
   // Play/Stop and Rate
-  drawRoundButton(15, y, 80, 30, lfo.isRunning ? "STOP" : "START", 
+  drawRoundButton(btnSpacing, y, 80, 30, lfo.isRunning ? "STOP" : "START", 
                  lfo.isRunning ? THEME_ERROR : THEME_SUCCESS);
   
   tft.setTextColor(THEME_TEXT, THEME_BG);
@@ -68,20 +69,21 @@ void drawLFOControls() {
   drawRoundButton(260, y, 35, 30, "-", THEME_SECONDARY);
   drawRoundButton(305, y, 35, 30, "+", THEME_SECONDARY);
   
-  // Waveform selector
-  drawRoundButton(360, y, 90, 30, waveNames[lfo.waveform], THEME_ACCENT);
+  // Waveform selector - use remaining width
+  int waveW = SCREEN_WIDTH - 360 - btnSpacing;
+  drawRoundButton(360, y, waveW, 30, waveNames[lfo.waveform], THEME_ACCENT);
   
   y += spacing;
   
   // Amount
-  tft.drawString("Amount:", 10, y + 6, 1);
+  tft.drawString("Amount:", btnSpacing, y + 6, 1);
   tft.drawString(String(lfo.amount), 60, y + 6, 1);
   drawRoundButton(85, y, 25, 25, "-", THEME_SECONDARY);
   drawRoundButton(115, y, 25, 25, "+", THEME_SECONDARY);
   
-  // Amount bar
-  int barW = 100;
+  // Amount bar - use remaining width
   int barX = 150;
+  int barW = SCREEN_WIDTH - barX - btnSpacing;
   tft.drawRect(barX, y + 8, barW, 10, THEME_TEXT_DIM);
   int fillW = (barW * lfo.amount) / 127;
   tft.fillRect(barX + 1, y + 9, fillW, 8, THEME_PRIMARY);
@@ -89,7 +91,7 @@ void drawLFOControls() {
   y += spacing;
   
   // Target selection
-  tft.drawString("Target:", 10, y + 6, 1);
+  tft.drawString("Target:", btnSpacing, y + 6, 1);
   if (lfo.pitchWheelMode) {
     tft.drawString("PITCH", 60, y + 6, 1);
   } else {
@@ -104,25 +106,26 @@ void drawLFOControls() {
   
   // Current value display
   tft.setTextColor(THEME_PRIMARY, THEME_BG);
-  tft.drawString("Value: ", 10, y, 1);
+  tft.drawString("Value: ", btnSpacing, y, 1);
   tft.setTextColor(THEME_ACCENT, THEME_BG);
   tft.drawString(String(lfo.lastValue), 60, y, 2);
   
   // Status indicator
+  int indicatorX = SCREEN_WIDTH - 30;
   if (lfo.isRunning) {
-    tft.fillCircle(250, y + 8, 8, THEME_SUCCESS);
-    tft.drawCircle(250, y + 8, 8, THEME_TEXT);
+    tft.fillCircle(indicatorX, y + 8, 8, THEME_SUCCESS);
+    tft.drawCircle(indicatorX, y + 8, 8, THEME_TEXT);
   } else {
-    tft.drawCircle(250, y + 8, 8, THEME_TEXT_DIM);
+    tft.drawCircle(indicatorX, y + 8, 8, THEME_TEXT_DIM);
   }
 }
 
 void drawWaveform() {
-  // Draw a mini waveform visualization
+  // Draw a mini waveform visualization - use available width
   int waveX = 10;
-  int waveY = 180;
-  int waveW = 200;
-  int waveH = 30;
+  int waveY = SCREEN_HEIGHT - 80;
+  int waveW = SCREEN_WIDTH - 20;
+  int waveH = 50;
   
   tft.drawRect(waveX, waveY, waveW, waveH, THEME_TEXT_DIM);
   
