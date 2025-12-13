@@ -20,11 +20,11 @@ Button xyBtnXccUp;
 Button xyBtnYccDown;
 Button xyBtnYccUp;
 
-// Pad area dimensions
+// Pad area dimensions - calculated based on screen size
 #define PAD_X 20
 #define PAD_Y (CONTENT_TOP + 10)
-#define PAD_WIDTH 350
-#define PAD_HEIGHT 220
+#define PAD_WIDTH (SCREEN_WIDTH - 140)
+#define PAD_HEIGHT (SCREEN_HEIGHT - CONTENT_TOP - 30)
 #define PAD_CENTER_X (PAD_X + PAD_WIDTH/2)
 #define PAD_CENTER_Y (PAD_Y + PAD_HEIGHT/2)
 

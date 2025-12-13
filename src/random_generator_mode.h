@@ -57,11 +57,12 @@ void drawRandomGeneratorMode() {
 }
 
 void drawRandomGenControls() {
-  int y = 55;
-  int spacing = 22;
+  int y = CONTENT_TOP + 5;
+  int spacing = (SCREEN_HEIGHT - CONTENT_TOP - 40) / 6; // Distribute vertically
+  int btnSpacing = 10;
   
   // Play/Stop and Root note on same line
-  drawRoundButton(10, y, 60, 25, randomGen.isPlaying ? "STOP" : "PLAY", 
+  drawRoundButton(btnSpacing, y, 60, 25, randomGen.isPlaying ? "STOP" : "PLAY", 
                  randomGen.isPlaying ? THEME_ERROR : THEME_SUCCESS);
   
   tft.setTextColor(THEME_TEXT, THEME_BG);
@@ -71,41 +72,43 @@ void drawRandomGenControls() {
   drawRoundButton(150, y, 25, 25, "+", THEME_SECONDARY);
   drawRoundButton(180, y, 25, 25, "-", THEME_SECONDARY);
   
-  // Scale selector
-  drawRoundButton(220, y, 80, 25, scales[randomGen.scaleType].name, THEME_ACCENT);
+  // Scale selector - use available width
+  int scaleW = SCREEN_WIDTH - 230;
+  drawRoundButton(220, y, scaleW, 25, scales[randomGen.scaleType].name, THEME_ACCENT);
   
-  y += spacing + 5;
+  y += spacing;
   
   // Octave range
-  tft.drawString("Oct:", 10, y + 6, 1);
+  tft.drawString("Oct:", btnSpacing, y + 6, 1);
   tft.drawString(String(randomGen.minOctave) + "-" + String(randomGen.maxOctave), 35, y + 6, 1);
-  drawRoundButton(70, y, 35, 25, "MIN-", THEME_SECONDARY);
-  drawRoundButton(110, y, 35, 25, "MIN+", THEME_SECONDARY);
-  drawRoundButton(150, y, 35, 25, "MAX-", THEME_SECONDARY);
-  drawRoundButton(190, y, 35, 25, "MAX+", THEME_SECONDARY);
+  int octBtnW = (SCREEN_WIDTH - 90) / 4;
+  drawRoundButton(70, y, octBtnW, 25, "MIN-", THEME_SECONDARY);
+  drawRoundButton(70 + octBtnW + 5, y, octBtnW, 25, "MIN+", THEME_SECONDARY);
+  drawRoundButton(70 + (octBtnW + 5) * 2, y, octBtnW, 25, "MAX-", THEME_SECONDARY);
+  drawRoundButton(70 + (octBtnW + 5) * 3, y, octBtnW, 25, "MAX+", THEME_SECONDARY);
   
-  y += spacing + 5;
+  y += spacing;
   
   // Probability with visual bar
-  tft.drawString("Chance:", 10, y + 6, 1);
+  tft.drawString("Chance:", btnSpacing, y + 6, 1);
   tft.drawString(String(randomGen.probability) + "%", 55, y + 6, 1);
   drawRoundButton(85, y, 25, 25, "-", THEME_SECONDARY);
   drawRoundButton(115, y, 25, 25, "+", THEME_SECONDARY);
   
-  // Compact probability bar - clear and redraw
-  int barW = 80;
+  // Compact probability bar - use remaining width
+  int barW = SCREEN_WIDTH - 160;
   int barX = 145;
-  tft.fillRect(barX, y + 8, barW, 10, THEME_BG); // Clear old bar
+  tft.fillRect(barX, y + 8, barW, 10, THEME_BG);
   tft.drawRect(barX, y + 8, barW, 10, THEME_TEXT_DIM);
   int fillW = (barW * randomGen.probability) / 100;
   if (fillW > 0) {
     tft.fillRect(barX + 1, y + 9, fillW, 8, THEME_PRIMARY);
   }
   
-  y += spacing + 5;
+  y += spacing;
   
   // BPM and subdivision controls
-  tft.drawString("BPM:", 10, y + 6, 1);
+  tft.drawString("BPM:", btnSpacing, y + 6, 1);
   tft.drawString(String(randomGen.bpm), 40, y + 6, 1);
   drawRoundButton(65, y, 25, 25, "-", THEME_SECONDARY);
   drawRoundButton(95, y, 25, 25, "+", THEME_SECONDARY);
@@ -119,12 +122,12 @@ void drawRandomGenControls() {
   drawRoundButton(190, y, 25, 25, "<", THEME_SECONDARY);
   drawRoundButton(220, y, 25, 25, ">", THEME_SECONDARY);
   
-  y += spacing + 5;
+  y += spacing;
   
-  // Current note indicator (compact)
+  // Current note indicator
   if (randomGen.currentNote != -1) {
     tft.setTextColor(THEME_PRIMARY, THEME_BG);
-    tft.drawString("Now: ", 10, y, 1);
+    tft.drawString("Now: ", btnSpacing, y, 1);
     String currentNoteName = getNoteNameFromMIDI(randomGen.currentNote);
     tft.setTextColor(THEME_ACCENT, THEME_BG);
     tft.drawString(currentNoteName, 45, y, 2);
