@@ -78,7 +78,7 @@ void initializePhysicsDropMode() {
 
 void drawPhysicsDropMode() {
   tft.fillScreen(THEME_BG);
-  drawHeader("DROP", platformMode ? "Platform Edit" : "Tap to Drop");
+  drawModuleHeader("DROP");
   
   // Controls
   drawRoundButton(10, 200, 40, 25, platformMode ? "DROP" : "EDIT", THEME_WARNING);

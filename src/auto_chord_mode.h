@@ -54,7 +54,7 @@ void initializeAutoChordMode() {
 
 void drawAutoChordMode() {
   tft.fillScreen(THEME_BG);
-  drawHeader("CHORD MODE", scales[chordScale].name + " Diatonic");
+  drawModuleHeader("CHORD MODE");
   
   drawChordKeys();
   

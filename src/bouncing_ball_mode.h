@@ -67,7 +67,7 @@ void initializeBouncingBallMode() {
 
 void drawBouncingBallMode() {
   tft.fillScreen(THEME_BG);
-  drawHeader("ZEN", "Ambient Bouncing");
+  drawModuleHeader("ZEN");
   
   // Controls - positioned at bottom with proper spacing
   int btnY = SCREEN_HEIGHT - 50;

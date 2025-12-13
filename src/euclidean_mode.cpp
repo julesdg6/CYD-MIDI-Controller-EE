@@ -65,11 +65,8 @@ void initializeEuclideanMode() {
 void drawEuclideanMode() {
   tft.fillScreen(THEME_BG);
   
-  // Title
-  tft.setTextColor(THEME_TEXT, THEME_BG);
-  tft.setTextSize(2);
-  tft.setCursor(10, 5);
-  tft.print("EUCLIDEAN");
+  // Unified header with BLE, SD, and BPM indicators
+  drawModuleHeader("EUCLIDEAN");
   
   // Draw circular visualization (inspired by Ableton interface)
   int centerX = 200;

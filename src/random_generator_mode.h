@@ -51,7 +51,7 @@ void initializeRandomGeneratorMode() {
 
 void drawRandomGeneratorMode() {
   tft.fillScreen(THEME_BG);
-  drawHeader("RNG JAMS", "Random Music");
+  drawModuleHeader("RNG JAMS");
   
   drawRandomGenControls();
 }

@@ -105,17 +105,8 @@ void initializeGridsMode() {
 void drawGridsMode() {
   tft.fillScreen(THEME_BG);
   
-  // Header
-  tft.setTextColor(THEME_TEXT, THEME_BG);
-  tft.drawString("GRIDS", 10, 10, 4);
-  
-  // Status
-  tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
-  String status = grids.playing ? "PLAYING" : "STOPPED";
-  tft.drawRightString(status, 470, 10, 2);
-  
-  // BPM display
-  tft.drawRightString("BPM: " + String((int)grids.bpm), 470, 30, 2);
+  // Unified header with BLE, SD, and BPM indicators
+  drawModuleHeader("GRIDS");
   
   int y = CONTENT_TOP;
   

@@ -48,7 +48,7 @@ void initializeLFOMode() {
 
 void drawLFOMode() {
   tft.fillScreen(THEME_BG);
-  drawHeader("LFO MOD", lfo.pitchWheelMode ? "Pitchwheel" : ("CC " + String(lfo.ccTarget)));
+  drawModuleHeader("LFO MOD");
   
   drawLFOControls();
   drawWaveform();

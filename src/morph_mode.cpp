@@ -289,11 +289,8 @@ void initializeMorphMode() {
 void drawMorphMode() {
   tft.fillScreen(THEME_BG);
   
-  // Title
-  tft.setTextColor(THEME_TEXT, THEME_BG);
-  tft.setTextSize(2);
-  tft.setCursor(10, 5);
-  tft.print("MORPH");
+  // Unified header with BLE, SD, and BPM indicators
+  drawModuleHeader("MORPH");
   
   // Central gesture area (280x240)
   int gestureX = 20;

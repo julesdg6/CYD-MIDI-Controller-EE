@@ -30,7 +30,7 @@ void initializeArpeggiatorMode() {
 
 void drawArpeggiatorMode() {
   tft.fillScreen(THEME_BG);
-  drawHeader("ARPEGGIATOR", "Piano Chord Arps");
+  drawModuleHeader("ARPEGGIATOR");
   
   drawArpControls();
   drawPianoKeys();
