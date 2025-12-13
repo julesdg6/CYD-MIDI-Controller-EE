@@ -37,24 +37,27 @@ void drawArpeggiatorMode() {
 }
 
 void drawArpControls() {
-  int y = 55;
-  int spacing = 25;
+  int y = CONTENT_TOP + 5;
+  int spacing = (SCREEN_HEIGHT - CONTENT_TOP - 80) / 6; // Distribute vertically
+  int btnSpacing = 10;
   
   // Pattern and chord type
   tft.setTextColor(THEME_TEXT, THEME_BG);
-  tft.drawString("Pattern:", 10, y + 6, 1);
+  tft.drawString("Pattern:", btnSpacing, y + 6, 1);
   drawRoundButton(65, y, 60, 25, patternNames[arp.pattern], THEME_WARNING);
   drawRoundButton(130, y, 25, 25, "<", THEME_SECONDARY);
   drawRoundButton(160, y, 25, 25, ">", THEME_SECONDARY);
   
-  // Chord type
-  tft.drawString("Type:", 200, y + 6, 1);
-  drawRoundButton(240, y, 50, 25, chordTypeNames[arp.chordType], THEME_ACCENT);
+  // Chord type - use remaining width
+  int typeX = 200;
+  tft.drawString("Type:", typeX, y + 6, 1);
+  int typeW = SCREEN_WIDTH - typeX - 50;
+  drawRoundButton(typeX + 40, y, typeW, 25, chordTypeNames[arp.chordType], THEME_ACCENT);
   
   y += spacing;
   
   // Octaves and Speed
-  tft.drawString("Octaves:", 10, y + 6, 1);
+  tft.drawString("Octaves:", btnSpacing, y + 6, 1);
   tft.drawString(String(arp.octaves), 70, y + 6, 1);
   drawRoundButton(90, y, 25, 25, "-", THEME_SECONDARY);
   drawRoundButton(120, y, 25, 25, "+", THEME_SECONDARY);
@@ -73,7 +76,7 @@ void drawArpControls() {
   y += spacing;
   
   // BPM Control
-  tft.drawString("BPM:", 10, y + 6, 1);
+  tft.drawString("BPM:", btnSpacing, y + 6, 1);
   tft.drawString(String(arp.bpm), 50, y + 6, 1);
   drawRoundButton(80, y, 25, 25, "-", THEME_SECONDARY);
   drawRoundButton(110, y, 25, 25, "+", THEME_SECONDARY);
@@ -81,7 +84,7 @@ void drawArpControls() {
   y += spacing;
   
   // Piano octave controls
-  tft.drawString("Piano Oct:", 10, y + 6, 1);
+  tft.drawString("Piano Oct:", btnSpacing, y + 6, 1);
   tft.drawString(String(pianoOctave), 80, y + 6, 1);
   drawRoundButton(100, y, 25, 25, "-", THEME_SECONDARY);
   drawRoundButton(130, y, 25, 25, "+", THEME_SECONDARY);
@@ -99,12 +102,13 @@ void drawArpControls() {
   if (arp.currentNote != -1) {
     tft.setTextColor(THEME_ACCENT, THEME_BG);
     String currentNoteName = getNoteNameFromMIDI(arp.currentNote);
-    tft.drawString("♪ " + currentNoteName, 10, y + 6, 2);
+    tft.drawString("♪ " + currentNoteName, btnSpacing, y + 6, 2);
   }
 }
 
 void drawPianoKeys() {
-  int keyY = 160;
+  // Calculate piano key position from screen dimensions
+  int keyY = SCREEN_HEIGHT - 60;
   int keyWidth = SCREEN_WIDTH / NUM_PIANO_KEYS;
   int keyHeight = 50;
   
@@ -139,8 +143,11 @@ void handleArpeggiatorMode() {
   }
   
   if (touch.justPressed) {
-    int y = 55;
-    int spacing = 25;
+    // Calculate layout matching drawArpControls
+    int y = CONTENT_TOP + 5;
+    int spacing = (SCREEN_HEIGHT - CONTENT_TOP - 80) / 6;
+    int typeX = 200;
+    int typeW = SCREEN_WIDTH - typeX - 50;
     
     // Pattern controls (first line)
     if (isButtonPressed(130, y, 25, 25)) {
@@ -155,7 +162,7 @@ void handleArpeggiatorMode() {
     }
     
     // Chord type control (first line)
-    if (isButtonPressed(240, y, 50, 25)) {
+    if (isButtonPressed(typeX + 40, y, typeW, 25)) {
       arp.chordType = (arp.chordType + 1) % 3;
       drawArpControls();
       return;
@@ -227,10 +234,10 @@ void handleArpeggiatorMode() {
       return;
     }
     
-    // Piano key handling
-    int keyY = 160;
+    // Piano key handling - calculate position matching drawPianoKeys
+    int keyY = SCREEN_HEIGHT - 60;
     int keyWidth = SCREEN_WIDTH / NUM_PIANO_KEYS;
-    int keyHeight = 45;
+    int keyHeight = 50;
     
     for (int i = 0; i < NUM_PIANO_KEYS; i++) {
       int x = i * keyWidth;
