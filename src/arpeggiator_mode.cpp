@@ -43,21 +43,21 @@ void drawArpControls() {
   // Pattern and chord type
   tft.setTextColor(THEME_TEXT, THEME_BG);
   tft.drawString("Pattern:", 10, y + 6, 1);
-  drawRoundButton(65, y, 60, 25, patternNames[arp.pattern], THEME_WARNING);
-  drawRoundButton(130, y, 25, 25, "<", THEME_SECONDARY);
-  drawRoundButton(160, y, 25, 25, ">", THEME_SECONDARY);
+  drawRoundButton(65, y, 60, 25, patternNames[arp.pattern], THEME_WARNING, false);
+  drawRoundButton(130, y, 25, 25, "<", THEME_SECONDARY, false);
+  drawRoundButton(160, y, 25, 25, ">", THEME_SECONDARY, false);
   
   // Chord type
   tft.drawString("Type:", 200, y + 6, 1);
-  drawRoundButton(240, y, 50, 25, chordTypeNames[arp.chordType], THEME_ACCENT);
+  drawRoundButton(240, y, 50, 25, chordTypeNames[arp.chordType], THEME_ACCENT, false);
   
   y += spacing;
   
   // Octaves and Speed
   tft.drawString("Octaves:", 10, y + 6, 1);
   tft.drawString(String(arp.octaves), 70, y + 6, 1);
-  drawRoundButton(90, y, 25, 25, "-", THEME_SECONDARY);
-  drawRoundButton(120, y, 25, 25, "+", THEME_SECONDARY);
+  drawRoundButton(90, y, 25, 25, "-", THEME_SECONDARY, false);
+  drawRoundButton(120, y, 25, 25, "+", THEME_SECONDARY, false);
   
   // Speed
   tft.drawString("Speed:", 160, y + 6, 1);
@@ -67,24 +67,24 @@ void drawArpControls() {
   else if (arp.speed == 16) speedText = "16th";
   else if (arp.speed == 32) speedText = "32nd";
   tft.drawString(speedText, 210, y + 6, 1);
-  drawRoundButton(240, y, 25, 25, "+", THEME_SECONDARY);
-  drawRoundButton(270, y, 25, 25, "-", THEME_SECONDARY);
+  drawRoundButton(240, y, 25, 25, "+", THEME_SECONDARY, false);
+  drawRoundButton(270, y, 25, 25, "-", THEME_SECONDARY, false);
   
   y += spacing;
   
   // BPM Control
   tft.drawString("BPM:", 10, y + 6, 1);
   tft.drawString(String(arp.bpm), 50, y + 6, 1);
-  drawRoundButton(80, y, 25, 25, "-", THEME_SECONDARY);
-  drawRoundButton(110, y, 25, 25, "+", THEME_SECONDARY);
+  drawRoundButton(80, y, 25, 25, "-", THEME_SECONDARY, false);
+  drawRoundButton(110, y, 25, 25, "+", THEME_SECONDARY, false);
   
   y += spacing;
   
   // Piano octave controls
   tft.drawString("Piano Oct:", 10, y + 6, 1);
   tft.drawString(String(pianoOctave), 80, y + 6, 1);
-  drawRoundButton(100, y, 25, 25, "-", THEME_SECONDARY);
-  drawRoundButton(130, y, 25, 25, "+", THEME_SECONDARY);
+  drawRoundButton(100, y, 25, 25, "-", THEME_SECONDARY, false);
+  drawRoundButton(130, y, 25, 25, "+", THEME_SECONDARY, false);
   
   // Current status
   if (arp.isPlaying && arp.triggeredKey != -1) {
@@ -138,24 +138,63 @@ void handleArpeggiatorMode() {
     return;
   }
   
+  // Calculate button positions for press feedback
+  int y1 = 55;
+  int y2 = y1 + 25;
+  int y3 = y2 + 25;
+  int y4 = y3 + 25;
+  
+  // Check button press states
+  bool patternLeftPressed = touch.isPressed && isButtonPressed(130, y1, 25, 25);
+  bool patternRightPressed = touch.isPressed && isButtonPressed(160, y1, 25, 25);
+  bool chordTypePressed = touch.isPressed && isButtonPressed(240, y1, 50, 25);
+  
+  bool octDownPressed = touch.isPressed && isButtonPressed(90, y2, 25, 25);
+  bool octUpPressed = touch.isPressed && isButtonPressed(120, y2, 25, 25);
+  bool speedUpPressed = touch.isPressed && isButtonPressed(240, y2, 25, 25);
+  bool speedDownPressed = touch.isPressed && isButtonPressed(270, y2, 25, 25);
+  
+  bool bpmDownPressed = touch.isPressed && isButtonPressed(80, y3, 25, 25);
+  bool bpmUpPressed = touch.isPressed && isButtonPressed(110, y3, 25, 25);
+  
+  bool pianoOctDownPressed = touch.isPressed && isButtonPressed(100, y4, 25, 25);
+  bool pianoOctUpPressed = touch.isPressed && isButtonPressed(130, y4, 25, 25);
+  
+  // Draw buttons with press feedback
+  drawRoundButton(65, y1, 60, 25, patternNames[arp.pattern], THEME_WARNING, false);
+  drawRoundButton(130, y1, 25, 25, "<", THEME_SECONDARY, patternLeftPressed);
+  drawRoundButton(160, y1, 25, 25, ">", THEME_SECONDARY, patternRightPressed);
+  drawRoundButton(240, y1, 50, 25, chordTypeNames[arp.chordType], THEME_ACCENT, chordTypePressed);
+  
+  drawRoundButton(90, y2, 25, 25, "-", THEME_SECONDARY, octDownPressed);
+  drawRoundButton(120, y2, 25, 25, "+", THEME_SECONDARY, octUpPressed);
+  drawRoundButton(240, y2, 25, 25, "+", THEME_SECONDARY, speedUpPressed);
+  drawRoundButton(270, y2, 25, 25, "-", THEME_SECONDARY, speedDownPressed);
+  
+  drawRoundButton(80, y3, 25, 25, "-", THEME_SECONDARY, bpmDownPressed);
+  drawRoundButton(110, y3, 25, 25, "+", THEME_SECONDARY, bpmUpPressed);
+  
+  drawRoundButton(100, y4, 25, 25, "-", THEME_SECONDARY, pianoOctDownPressed);
+  drawRoundButton(130, y4, 25, 25, "+", THEME_SECONDARY, pianoOctUpPressed);
+  
   if (touch.justPressed) {
     int y = 55;
     int spacing = 25;
     
     // Pattern controls (first line)
-    if (isButtonPressed(130, y, 25, 25)) {
+    if (patternLeftPressed) {
       arp.pattern = (arp.pattern - 1 + 5) % 5;
       drawArpControls();
       return;
     }
-    if (isButtonPressed(160, y, 25, 25)) {
+    if (patternRightPressed) {
       arp.pattern = (arp.pattern + 1) % 5;
       drawArpControls();
       return;
     }
     
     // Chord type control (first line)
-    if (isButtonPressed(240, y, 50, 25)) {
+    if (chordTypePressed) {
       arp.chordType = (arp.chordType + 1) % 3;
       drawArpControls();
       return;
@@ -164,19 +203,19 @@ void handleArpeggiatorMode() {
     y += spacing;
     
     // Octave controls
-    if (isButtonPressed(90, y, 25, 25)) {
+    if (octDownPressed) {
       arp.octaves = max(1, arp.octaves - 1);
       drawArpControls();
       return;
     }
-    if (isButtonPressed(120, y, 25, 25)) {
+    if (octUpPressed) {
       arp.octaves = min(4, arp.octaves + 1);
       drawArpControls();
       return;
     }
     
     // Speed controls (+ = faster, - = slower)
-    if (isButtonPressed(240, y, 25, 25)) {
+    if (speedUpPressed) {
       // Faster (+ button)
       if (arp.speed == 32) arp.speed = 16;
       else if (arp.speed == 16) arp.speed = 8;
@@ -185,7 +224,7 @@ void handleArpeggiatorMode() {
       drawArpControls();
       return;
     }
-    if (isButtonPressed(270, y, 25, 25)) {
+    if (speedDownPressed) {
       // Slower (- button)
       if (arp.speed == 4) arp.speed = 8;
       else if (arp.speed == 8) arp.speed = 16;
@@ -198,13 +237,13 @@ void handleArpeggiatorMode() {
     y += spacing;
     
     // BPM controls
-    if (isButtonPressed(80, y, 25, 25)) {
+    if (bpmDownPressed) {
       arp.bpm = max(60, arp.bpm - 5);
       calculateStepInterval();
       drawArpControls();
       return;
     }
-    if (isButtonPressed(110, y, 25, 25)) {
+    if (bpmUpPressed) {
       arp.bpm = min(200, arp.bpm + 5);
       calculateStepInterval();
       drawArpControls();
@@ -214,13 +253,13 @@ void handleArpeggiatorMode() {
     y += spacing;
     
     // Piano octave controls
-    if (isButtonPressed(100, y, 25, 25)) {
+    if (pianoOctDownPressed) {
       pianoOctave = max(1, pianoOctave - 1);
       drawPianoKeys();
       drawArpControls();
       return;
     }
-    if (isButtonPressed(130, y, 25, 25)) {
+    if (pianoOctUpPressed) {
       pianoOctave = min(7, pianoOctave + 1);
       drawPianoKeys();
       drawArpControls();
