@@ -45,24 +45,25 @@ void initializeXYPadMode() {
   yValue = 64;
   padPressed = false;
   
-  // Initialize control buttons
-  int controlsX = PAD_X + PAD_WIDTH + 15;
-  int btnWidth = 40;
-  int btnSpacing = 45;
+  // Initialize control buttons with proper sizes (60x45px minimum)
+  int controlsX = PAD_X + PAD_WIDTH + 10;
+  int btnWidth = 60;
+  int btnHeight = 45;
+  int btnSpacing = 5; // Spacing between buttons
   
-  xyBtnXccDown.setBounds(controlsX, PAD_Y + 25, btnWidth, 25);
+  xyBtnXccDown.setBounds(controlsX, PAD_Y + 20, btnWidth, btnHeight);
   xyBtnXccDown.setText("-");
   xyBtnXccDown.setColor(THEME_SECONDARY);
   
-  xyBtnXccUp.setBounds(controlsX + btnSpacing, PAD_Y + 25, btnWidth, 25);
+  xyBtnXccUp.setBounds(controlsX, PAD_Y + 20 + btnHeight + btnSpacing, btnWidth, btnHeight);
   xyBtnXccUp.setText("+");
   xyBtnXccUp.setColor(THEME_SECONDARY);
   
-  xyBtnYccDown.setBounds(controlsX, PAD_Y + 105, btnWidth, 25);
+  xyBtnYccDown.setBounds(controlsX, PAD_Y + 125, btnWidth, btnHeight);
   xyBtnYccDown.setText("-");
   xyBtnYccDown.setColor(THEME_SECONDARY);
   
-  xyBtnYccUp.setBounds(controlsX + btnSpacing, PAD_Y + 85, btnWidth, 25);
+  xyBtnYccUp.setBounds(controlsX, PAD_Y + 125 + btnHeight + btnSpacing, btnWidth, btnHeight);
   xyBtnYccUp.setText("+");
   xyBtnYccUp.setColor(THEME_SECONDARY);
   
@@ -152,9 +153,10 @@ void drawXYPad() {
 
 void drawCCControls() {
   // CC assignment controls - positioned to fit within screen width
-  int controlsX = PAD_X + PAD_WIDTH + 15;  // Changed from +20
-  int btnWidth = 40;  // Increased button width for better usability
-  int btnSpacing = 45;  // Spacing between buttons
+  int controlsX = PAD_X + PAD_WIDTH + 10;
+  int btnWidth = 60;
+  int btnHeight = 45;
+  int btnSpacing = 5;
   
   // X CC controls
   tft.setTextColor(THEME_PRIMARY, THEME_BG);
@@ -163,18 +165,22 @@ void drawCCControls() {
   xyBtnXccDown.draw(true);
   xyBtnXccUp.draw(true);
   
+  // X CC value display position
+  int xValueY = PAD_Y + 20 + (btnHeight * 2) + btnSpacing + 8;
   tft.setTextColor(THEME_TEXT, THEME_BG);
-  tft.drawCentreString(String(xCC), controlsX + btnSpacing/2 + 8, PAD_Y + 55, 2);
+  tft.drawCentreString(String(xCC), controlsX + btnWidth/2, xValueY, 2);
   
   // Y CC controls
   tft.setTextColor(THEME_ACCENT, THEME_BG);
-  tft.drawString("Y CC", controlsX, PAD_Y + 80, 2);
+  tft.drawString("Y CC", controlsX, PAD_Y + 105, 2);
   
   xyBtnYccDown.draw(true);
   xyBtnYccUp.draw(true);
   
+  // Y CC value display position
+  int yValueY = PAD_Y + 125 + (btnHeight * 2) + btnSpacing + 8;
   tft.setTextColor(THEME_TEXT, THEME_BG);
-  tft.drawCentreString(String(yCC), controlsX + btnSpacing/2 + 8, PAD_Y + 135, 2);
+  tft.drawCentreString(String(yCC), controlsX + btnWidth/2, yValueY, 2);
   
   // Reset button removed per user request
 }

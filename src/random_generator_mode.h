@@ -58,76 +58,77 @@ void drawRandomGeneratorMode() {
 
 void drawRandomGenControls() {
   int y = 55;
-  int spacing = 22;
+  int btnHeight = 45;
+  int spacing = 5;
   
   // Play/Stop and Root note on same line
-  drawRoundButton(10, y, 60, 25, randomGen.isPlaying ? "STOP" : "PLAY", 
+  drawRoundButton(10, y, 60, btnHeight, randomGen.isPlaying ? "STOP" : "PLAY", 
                  randomGen.isPlaying ? THEME_ERROR : THEME_SUCCESS);
   
   tft.setTextColor(THEME_TEXT, THEME_BG);
-  tft.drawString("Key:", 80, y + 6, 1);
+  tft.drawString("Key:", 80, y + 15, 1);
   String rootName = getNoteNameFromMIDI(randomGen.rootNote);
-  drawRoundButton(110, y, 35, 25, rootName, THEME_PRIMARY);
-  drawRoundButton(150, y, 25, 25, "+", THEME_SECONDARY);
-  drawRoundButton(180, y, 25, 25, "-", THEME_SECONDARY);
+  drawRoundButton(110, y, 50, btnHeight, rootName, THEME_PRIMARY);
+  drawRoundButton(165, y, 45, btnHeight, "+", THEME_SECONDARY);
+  drawRoundButton(215, y, 45, btnHeight, "-", THEME_SECONDARY);
   
   // Scale selector
-  drawRoundButton(220, y, 80, 25, scales[randomGen.scaleType].name, THEME_ACCENT);
+  drawRoundButton(270, y, 80, btnHeight, scales[randomGen.scaleType].name, THEME_ACCENT);
   
-  y += spacing + 5;
+  y += btnHeight + spacing + 5;
   
   // Octave range
-  tft.drawString("Oct:", 10, y + 6, 1);
-  tft.drawString(String(randomGen.minOctave) + "-" + String(randomGen.maxOctave), 35, y + 6, 1);
-  drawRoundButton(70, y, 35, 25, "MIN-", THEME_SECONDARY);
-  drawRoundButton(110, y, 35, 25, "MIN+", THEME_SECONDARY);
-  drawRoundButton(150, y, 35, 25, "MAX-", THEME_SECONDARY);
-  drawRoundButton(190, y, 35, 25, "MAX+", THEME_SECONDARY);
+  tft.drawString("Oct:", 10, y + 15, 1);
+  tft.drawString(String(randomGen.minOctave) + "-" + String(randomGen.maxOctave), 40, y + 15, 1);
+  drawRoundButton(75, y, 55, btnHeight, "MIN-", THEME_SECONDARY);
+  drawRoundButton(135, y, 55, btnHeight, "MIN+", THEME_SECONDARY);
+  drawRoundButton(195, y, 55, btnHeight, "MAX-", THEME_SECONDARY);
+  drawRoundButton(255, y, 55, btnHeight, "MAX+", THEME_SECONDARY);
   
-  y += spacing + 5;
+  y += btnHeight + spacing + 5;
   
   // Probability with visual bar
-  tft.drawString("Chance:", 10, y + 6, 1);
-  tft.drawString(String(randomGen.probability) + "%", 55, y + 6, 1);
-  drawRoundButton(85, y, 25, 25, "-", THEME_SECONDARY);
-  drawRoundButton(115, y, 25, 25, "+", THEME_SECONDARY);
+  tft.drawString("Chance:", 10, y + 15, 1);
+  tft.drawString(String(randomGen.probability) + "%", 60, y + 15, 1);
+  drawRoundButton(105, y, 45, btnHeight, "-", THEME_SECONDARY);
+  drawRoundButton(155, y, 45, btnHeight, "+", THEME_SECONDARY);
   
   // Compact probability bar - clear and redraw
   int barW = 80;
-  int barX = 145;
-  tft.fillRect(barX, y + 8, barW, 10, THEME_BG); // Clear old bar
-  tft.drawRect(barX, y + 8, barW, 10, THEME_TEXT_DIM);
+  int barX = 210;
+  tft.fillRect(barX, y + 18, barW, 10, THEME_BG); // Clear old bar
+  tft.drawRect(barX, y + 18, barW, 10, THEME_TEXT_DIM);
   int fillW = (barW * randomGen.probability) / 100;
   if (fillW > 0) {
-    tft.fillRect(barX + 1, y + 9, fillW, 8, THEME_PRIMARY);
+    tft.fillRect(barX + 1, y + 19, fillW, 8, THEME_PRIMARY);
   }
   
-  y += spacing + 5;
+  y += btnHeight + spacing + 5;
   
   // BPM and subdivision controls
-  tft.drawString("BPM:", 10, y + 6, 1);
-  tft.drawString(String(randomGen.bpm), 40, y + 6, 1);
-  drawRoundButton(65, y, 25, 25, "-", THEME_SECONDARY);
-  drawRoundButton(95, y, 25, 25, "+", THEME_SECONDARY);
+  tft.drawString("BPM:", 10, y + 15, 1);
+  tft.drawString(String(randomGen.bpm), 45, y + 15, 1);
+  drawRoundButton(75, y, 45, btnHeight, "-", THEME_SECONDARY);
+  drawRoundButton(125, y, 45, btnHeight, "+", THEME_SECONDARY);
   
-  tft.drawString("Beat:", 125, y + 6, 1);
+  tft.drawString("Beat:", 180, y + 15, 1);
   String subdivText;
   if (randomGen.subdivision == 4) subdivText = "1/4";
   else if (randomGen.subdivision == 8) subdivText = "1/8";
   else if (randomGen.subdivision == 16) subdivText = "1/16";
-  tft.drawString(subdivText, 160, y + 6, 1);
-  drawRoundButton(190, y, 25, 25, "<", THEME_SECONDARY);
-  drawRoundButton(220, y, 25, 25, ">", THEME_SECONDARY);
+  tft.drawString(subdivText, 220, y + 15, 1);
+  drawRoundButton(260, y, 45, btnHeight, "<", THEME_SECONDARY);
+  drawRoundButton(310, y, 45, btnHeight, ">", THEME_SECONDARY);
   
-  y += spacing + 5;
+  y += btnHeight + spacing + 5;
   
   // Current note indicator (compact)
   if (randomGen.currentNote != -1) {
     tft.setTextColor(THEME_PRIMARY, THEME_BG);
-    tft.drawString("Now: ", 10, y, 1);
+    tft.drawString("Now: ", 10, y + 5, 1);
     String currentNoteName = getNoteNameFromMIDI(randomGen.currentNote);
     tft.setTextColor(THEME_ACCENT, THEME_BG);
-    tft.drawString(currentNoteName, 45, y, 2);
+    tft.drawString(currentNoteName, 50, y + 5, 2);
   }
 }
 
@@ -140,10 +141,11 @@ void handleRandomGeneratorMode() {
   
   if (touch.justPressed) {
     int y = 55;
-    int spacing = 22;
+    int btnHeight = 45;
+    int spacing = 5;
     
     // Play/Stop and Root note controls
-    if (isButtonPressed(10, y, 60, 25)) {
+    if (isButtonPressed(10, y, 60, btnHeight)) {
       randomGen.isPlaying = !randomGen.isPlaying;
       if (randomGen.isPlaying) {
         randomGen.nextNoteTime = millis() + randomGen.noteInterval;
@@ -155,28 +157,28 @@ void handleRandomGeneratorMode() {
       return;
     }
     
-    if (isButtonPressed(150, y, 25, 25)) {
+    if (isButtonPressed(165, y, 45, btnHeight)) {
       randomGen.rootNote = min(127, randomGen.rootNote + 1);
       drawRandomGenControls();
       return;
     }
-    if (isButtonPressed(180, y, 25, 25)) {
+    if (isButtonPressed(215, y, 45, btnHeight)) {
       randomGen.rootNote = max(0, randomGen.rootNote - 1);
       drawRandomGenControls();
       return;
     }
     
     // Scale selector
-    if (isButtonPressed(220, y, 80, 25)) {
+    if (isButtonPressed(270, y, 80, btnHeight)) {
       randomGen.scaleType = (randomGen.scaleType + 1) % NUM_SCALES;
       drawRandomGenControls();
       return;
     }
     
-    y += spacing + 5;
+    y += btnHeight + spacing + 5;
     
     // Octave controls
-    if (isButtonPressed(70, y, 35, 25)) {
+    if (isButtonPressed(75, y, 55, btnHeight)) {
       randomGen.minOctave = max(1, randomGen.minOctave - 1);
       if (randomGen.minOctave >= randomGen.maxOctave) {
         randomGen.maxOctave = randomGen.minOctave + 1;
@@ -184,7 +186,7 @@ void handleRandomGeneratorMode() {
       drawRandomGenControls();
       return;
     }
-    if (isButtonPressed(110, y, 35, 25)) {
+    if (isButtonPressed(135, y, 55, btnHeight)) {
       randomGen.minOctave = min(8, randomGen.minOctave + 1);
       if (randomGen.minOctave >= randomGen.maxOctave) {
         randomGen.maxOctave = randomGen.minOctave + 1;
@@ -192,41 +194,41 @@ void handleRandomGeneratorMode() {
       drawRandomGenControls();
       return;
     }
-    if (isButtonPressed(150, y, 35, 25)) {
+    if (isButtonPressed(195, y, 55, btnHeight)) {
       randomGen.maxOctave = max(randomGen.minOctave + 1, randomGen.maxOctave - 1);
       drawRandomGenControls();
       return;
     }
-    if (isButtonPressed(190, y, 35, 25)) {
+    if (isButtonPressed(255, y, 55, btnHeight)) {
       randomGen.maxOctave = min(9, randomGen.maxOctave + 1);
       drawRandomGenControls();
       return;
     }
     
-    y += spacing + 5;
+    y += btnHeight + spacing + 5;
     
     // Probability controls
-    if (isButtonPressed(85, y, 25, 25)) {
+    if (isButtonPressed(105, y, 45, btnHeight)) {
       randomGen.probability = max(0, randomGen.probability - 5);
       drawRandomGenControls();
       return;
     }
-    if (isButtonPressed(115, y, 25, 25)) {
+    if (isButtonPressed(155, y, 45, btnHeight)) {
       randomGen.probability = min(100, randomGen.probability + 5);
       drawRandomGenControls();
       return;
     }
     
-    y += spacing + 5;
+    y += btnHeight + spacing + 5;
     
     // BPM controls
-    if (isButtonPressed(65, y, 25, 25)) {
+    if (isButtonPressed(75, y, 45, btnHeight)) {
       randomGen.bpm = max(60, randomGen.bpm - 5);
       calculateNoteInterval();
       drawRandomGenControls();
       return;
     }
-    if (isButtonPressed(95, y, 25, 25)) {
+    if (isButtonPressed(125, y, 45, btnHeight)) {
       randomGen.bpm = min(200, randomGen.bpm + 5);
       calculateNoteInterval();
       drawRandomGenControls();
@@ -234,14 +236,14 @@ void handleRandomGeneratorMode() {
     }
     
     // Subdivision controls
-    if (isButtonPressed(190, y, 25, 25)) {
+    if (isButtonPressed(260, y, 45, btnHeight)) {
       if (randomGen.subdivision == 16) randomGen.subdivision = 8;
       else if (randomGen.subdivision == 8) randomGen.subdivision = 4;
       calculateNoteInterval();
       drawRandomGenControls();
       return;
     }
-    if (isButtonPressed(220, y, 25, 25)) {
+    if (isButtonPressed(310, y, 45, btnHeight)) {
       if (randomGen.subdivision == 4) randomGen.subdivision = 8;
       else if (randomGen.subdivision == 8) randomGen.subdivision = 16;
       calculateNoteInterval();
