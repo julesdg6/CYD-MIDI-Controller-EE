@@ -204,12 +204,15 @@ void handleBouncingBallMode() {
   bool keyUpPressed = touch.isPressed && isButtonPressed(270, btnY, 50, 30);
   bool octPressed = touch.isPressed && isButtonPressed(330, btnY, 50, 30);
   
-  drawRoundButton(10, btnY, 50, 30, "ADD", THEME_SUCCESS, addPressed);
-  drawRoundButton(70, btnY, 60, 30, "RESET", THEME_WARNING, resetPressed);
-  drawRoundButton(140, btnY, 60, 30, "SCALE", THEME_ACCENT, scalePressed);
-  drawRoundButton(210, btnY, 50, 30, "KEY-", THEME_SECONDARY, keyDownPressed);
-  drawRoundButton(270, btnY, 50, 30, "KEY+", THEME_SECONDARY, keyUpPressed);
-  drawRoundButton(330, btnY, 50, 30, "OCT", THEME_PRIMARY, octPressed);
+  // Only redraw buttons when pressed
+  if (addPressed || resetPressed || scalePressed || keyDownPressed || keyUpPressed || octPressed) {
+    drawRoundButton(10, btnY, 50, 30, "ADD", THEME_SUCCESS, addPressed);
+    drawRoundButton(70, btnY, 60, 30, "RESET", THEME_WARNING, resetPressed);
+    drawRoundButton(140, btnY, 60, 30, "SCALE", THEME_ACCENT, scalePressed);
+    drawRoundButton(210, btnY, 50, 30, "KEY-", THEME_SECONDARY, keyDownPressed);
+    drawRoundButton(270, btnY, 50, 30, "KEY+", THEME_SECONDARY, keyUpPressed);
+    drawRoundButton(330, btnY, 50, 30, "OCT", THEME_PRIMARY, octPressed);
+  }
   
   if (touch.justPressed) {
     // Add ball button

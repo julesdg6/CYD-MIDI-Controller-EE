@@ -59,7 +59,6 @@ void initializeRagaMode() {
   raga.rootNote = 60; // Middle C
   raga.playing = false;
   raga.droneEnabled = false;
-  rh 
   raga.currentStep = 0;
   raga.lastNoteTime = 0;
   raga.currentNote = -1;
@@ -272,7 +271,7 @@ void handleRagaMode() {
     Serial.printf("[RAGA] Touch at (%d, %d)\\n", touch.x, touch.y);
     
     // Check back button from header first
-    if (isButtonPressed(10, 5, 70, 35)) {
+    if (isButtonPressed(BACK_BTN_X, BACK_BTN_Y, BTN_BACK_W, BTN_BACK_H)) {
       Serial.println("[RAGA] Back button pressed");
       if (raga.playing) {
         raga.playing = false;

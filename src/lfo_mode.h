@@ -181,19 +181,21 @@ void handleLFOMode() {
   bool tgtUpPressed = touch.isPressed && isButtonPressed(140, y3, 25, 25);
   bool pitchPressed = touch.isPressed && isButtonPressed(180, y3, 70, 25);
   
-  // Draw buttons with press feedback
-  drawRoundButton(15, y1, 80, 30, lfo.isRunning ? "STOP" : "START", 
-                 lfo.isRunning ? THEME_ERROR : THEME_SUCCESS, startPressed);
-  drawRoundButton(260, y1, 35, 30, "-", THEME_SECONDARY, rateDownPressed);
-  drawRoundButton(305, y1, 35, 30, "+", THEME_SECONDARY, rateUpPressed);
-  drawRoundButton(360, y1, 90, 30, waveNames[lfo.waveform], THEME_ACCENT, wavePressed);
-  
-  drawRoundButton(85, y2, 25, 25, "-", THEME_SECONDARY, amtDownPressed);
-  drawRoundButton(115, y2, 25, 25, "+", THEME_SECONDARY, amtUpPressed);
-  
-  drawRoundButton(110, y3, 25, 25, "-", THEME_SECONDARY, tgtDownPressed);
-  drawRoundButton(140, y3, 25, 25, "+", THEME_SECONDARY, tgtUpPressed);
-  drawRoundButton(180, y3, 70, 25, "PITCH", lfo.pitchWheelMode ? THEME_PRIMARY : THEME_WARNING, pitchPressed);
+  // Only redraw buttons when pressed
+  if (startPressed || rateDownPressed || rateUpPressed || wavePressed || amtDownPressed || amtUpPressed || tgtDownPressed || tgtUpPressed || pitchPressed) {
+    drawRoundButton(15, y1, 80, 30, lfo.isRunning ? "STOP" : "START", 
+                   lfo.isRunning ? THEME_ERROR : THEME_SUCCESS, startPressed);
+    drawRoundButton(260, y1, 35, 30, "-", THEME_SECONDARY, rateDownPressed);
+    drawRoundButton(305, y1, 35, 30, "+", THEME_SECONDARY, rateUpPressed);
+    drawRoundButton(360, y1, 90, 30, waveNames[lfo.waveform], THEME_ACCENT, wavePressed);
+    
+    drawRoundButton(85, y2, 25, 25, "-", THEME_SECONDARY, amtDownPressed);
+    drawRoundButton(115, y2, 25, 25, "+", THEME_SECONDARY, amtUpPressed);
+    
+    drawRoundButton(110, y3, 25, 25, "-", THEME_SECONDARY, tgtDownPressed);
+    drawRoundButton(140, y3, 25, 25, "+", THEME_SECONDARY, tgtUpPressed);
+    drawRoundButton(180, y3, 70, 25, "PITCH", lfo.pitchWheelMode ? THEME_PRIMARY : THEME_WARNING, pitchPressed);
+  }
   
   if (touch.justPressed) {
     int y = 55;

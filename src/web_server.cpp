@@ -28,8 +28,20 @@ button:hover{background:#3ad}input[type='file'],input[type='text'],input[type='p
 .folder{color:#fa0}.btn-delete{background:#c33}.btn-delete:hover{background:#e44}.status{padding:6px;margin:6px 0;border-radius:4px;display:none;font-size:13px}
 .success{background:#2a5}.error{background:#c33}.section{margin:10px 0;padding:8px;background:#2a2a2a;border-radius:4px}.section h2{font-size:1.1em;margin-bottom:6px}
 .wifi-form label{display:block;margin-top:6px;font-size:13px}.wifi-info{font-size:12px;opacity:0.8;margin-top:4px}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:8px}
+.gallery-item{background:#333;border-radius:4px;overflow:hidden;text-align:center;cursor:pointer;border:2px solid #444;transition:border 0.2s}
+.gallery-item:hover{border-color:#3ad}.gallery-thumb{width:100%;height:120px;background:#111;display:flex;align-items:center;justify-content:center;font-size:2em}
+.gallery-name{padding:6px;font-size:12px;word-break:break-word;overflow:hidden;text-overflow:ellipsis}
+.gallery-controls{display:flex;gap:4px;padding:4px;justify-content:center}
+.gallery-controls button{padding:4px 6px;font-size:11px}
 </style></head><body>
 <h1>🎹 CYD Manager</h1>
+<div class='section'>
+<h2>📸 Screenshots Gallery</h2>
+<button onclick='loadScreenshots()'>Refresh Gallery</button>
+<button onclick='downloadAllScreenshots()'>⬇️ Download All</button>
+<div class='gallery' id='gallery'><div style='grid-column:1/-1;text-align:center;padding:20px'>Loading...</div></div>
+</div>
 <div class='section'>
 <h2>📁 Files</h2>
 <div class='breadcrumb' id='breadcrumb'>/</div>
@@ -60,12 +72,17 @@ function loadFiles(){fetch('/list?path='+encodeURIComponent(curPath)).then(r=>r.
 l.innerHTML=f.map(item=>{if(item.isDir)return '<li><div class="file-info"><span class="file-name folder" onclick="navTo(\''+item.path+'\')">📁 '+item.name+'</span></div></li>';
 return '<li><div class="file-info"><span class="file-name">'+item.name+'</span><span class="file-size">'+fmt(item.size)+'</span></div><div><button onclick="location.href=\'/download?file='+encodeURIComponent(item.path)+'\'">⬇️</button><button class="btn-delete" onclick="del(\''+item.path+'\')">🗑️</button></div></li>'}).join('');updateBreadcrumb()}).catch(e=>console.error(e))}
 function del(n){if(!confirm('Delete '+n+'?'))return;fetch('/delete?file='+encodeURIComponent(n),{method:'DELETE'}).then(r=>{showSt(r.ok?'Deleted':'Failed',r.ok?'success':'error');if(r.ok)loadFiles()}).catch(e=>showSt('Error','error'))}
-function takeScreenshot(){showSt('Taking screenshot...','success');fetch('/screenshot').then(r=>r.blob()).then(b=>{const url=URL.createObjectURL(b);const a=document.createElement('a');a.href=url;a.download='cyd_screen.bmp';a.click();showSt('Screenshot saved!','success')}).catch(e=>showSt('Screenshot failed','error'))}
+function loadScreenshots(){fetch('/screenshots').then(r=>r.json()).then(screenshots=>{const g=document.getElementById('gallery');if(!screenshots||screenshots.length===0){g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px">No screenshots found</div>';return}
+g.innerHTML=screenshots.map(s=>'<div class="gallery-item"><div class="gallery-thumb">🖼️</div><div class="gallery-name">'+s.name+'</div><div class="gallery-controls"><button onclick="location.href=\'/screenshot?file='+encodeURIComponent(s.path)+'\'" style="flex:1">⬇️</button><button onclick="delScreenshot(\''+s.path+'\')">🗑️</button></div></div>').join('')}).catch(e=>{document.getElementById('gallery').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px">Error loading screenshots</div>';console.error(e)})}
+function delScreenshot(path){if(!confirm('Delete screenshot?'))return;fetch('/screenshot?file='+encodeURIComponent(path),{method:'DELETE'}).then(r=>{if(r.ok){loadScreenshots()}}).catch(e=>console.error(e))}
+function downloadAllScreenshots(){showSt('Preparing download...','success');fetch('/screenshots').then(r=>r.json()).then(screenshots=>{if(!screenshots||screenshots.length===0){showSt('No screenshots','error');return}
+screenshots.forEach((s,i)=>{setTimeout(()=>{const a=document.createElement('a');a.href='/screenshot?file='+encodeURIComponent(s.path);a.download=s.name;a.click()},i*500)})}).catch(e=>showSt('Error','error'))}
+function takeScreenshot(){showSt('Taking screenshot...','success');fetch('/screenshot').then(r=>r.blob()).then(b=>{const url=URL.createObjectURL(b);const a=document.createElement('a');a.href=url;a.download='cyd_screen.bmp';a.click();showSt('Screenshot saved!','success');setTimeout(loadScreenshots,500)}).catch(e=>showSt('Screenshot failed','error'))}
 document.getElementById('up').addEventListener('submit',e=>{e.preventDefault();const fd=new FormData(),fi=document.getElementById('fi');fd.append('file',fi.files[0]);fd.append('path',curPath);fetch('/upload',{method:'POST',body:fd}).then(r=>{showSt(r.ok?'Uploaded!':'Failed',r.ok?'success':'error');if(r.ok){fi.value='';loadFiles()}}).catch(e=>showSt('Error','error'))});
 document.getElementById('wifiForm').addEventListener('submit',e=>{e.preventDefault();const ssid=document.getElementById('ssid').value,pass=document.getElementById('pass').value;fetch('/wifi',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ssid:ssid,password:pass})}).then(r=>r.text()).then(t=>{showSt(t,'success');loadWifiInfo()}).catch(e=>showSt('WiFi config failed','error'))});
 function loadWifiInfo(){fetch('/wifi').then(r=>r.text()).then(t=>document.getElementById('wifiInfo').innerHTML='Current: '+t).catch(e=>{})}
 function showSt(m,t){const s=document.getElementById('st');s.textContent=m;s.className='status '+t;s.style.display='block';setTimeout(()=>s.style.display='none',3000)}
-loadFiles();loadWifiInfo()
+loadFiles();loadWifiInfo();loadScreenshots()
 </script></body></html>
 )rawliteral";
 
@@ -166,6 +183,8 @@ void initializeWebServer() {
   server.on("/download", HTTP_GET, handleFileDownload);
   server.on("/delete", HTTP_DELETE, handleFileDelete);
   server.on("/screenshot", HTTP_GET, handleScreenshot);
+  server.on("/screenshot", HTTP_DELETE, handleScreenshot);
+  server.on("/screenshots", HTTP_GET, handleScreenshots);
   server.on("/wifi", HTTP_GET, handleWiFiGet);
   server.on("/wifi", HTTP_POST, handleWiFiPost);
   server.onNotFound(handleNotFound);
@@ -331,6 +350,53 @@ void handleFileDelete() {
 }
 
 void handleScreenshot() {
+  // If file parameter provided, download that screenshot
+  if (server.hasArg("file")) {
+    String filename = "/" + server.arg("file");
+    
+    // Check if this is a DELETE request
+    if (server.method() == HTTP_DELETE) {
+      if (!SD.begin(SD_CS, sdSPI)) {
+        server.send(500, "text/plain", "SD card mount failed");
+        return;
+      }
+      
+      if (SD.remove(filename)) {
+        server.send(200, "text/plain", "Screenshot deleted");
+      } else {
+        server.send(500, "text/plain", "Failed to delete screenshot");
+      }
+      
+      SD.end();
+      return;
+    }
+    
+    // Download screenshot
+    if (!SD.begin(SD_CS, sdSPI)) {
+      server.send(500, "text/plain", "SD card mount failed");
+      return;
+    }
+    
+    if (!SD.exists(filename)) {
+      server.send(404, "text/plain", "Screenshot not found");
+      SD.end();
+      return;
+    }
+    
+    File file = SD.open(filename, FILE_READ);
+    if (!file) {
+      server.send(500, "text/plain", "Failed to open screenshot");
+      SD.end();
+      return;
+    }
+    
+    server.streamFile(file, "image/bmp");
+    file.close();
+    SD.end();
+    return;
+  }
+  
+  // Otherwise, capture new screenshot
   // Create BMP header (480x320, 16-bit RGB565)
   const int width = 480;
   const int height = 320;
@@ -377,6 +443,47 @@ void handleScreenshot() {
   }
   
   Serial.println("Screenshot sent");
+}
+
+void handleScreenshots() {
+  if (!SD.begin(SD_CS, sdSPI)) {
+    server.send(500, "application/json", "[]");
+    return;
+  }
+  
+  File root = SD.open("/");
+  if (!root) {
+    SD.end();
+    server.send(500, "application/json", "[]");
+    return;
+  }
+  
+  String json = "[";
+  bool first = true;
+  
+  File file = root.openNextFile();
+  while (file) {
+    String filename = String(file.name());
+    
+    // Check if it's a .bmp file
+    if (!file.isDirectory() && filename.endsWith(".bmp")) {
+      if (!first) json += ",";
+      
+      json += "{\"name\":\"" + filename + "\",";
+      json += "\"path\":\"" + filename + "\",";
+      json += "\"size\":" + String(file.size()) + "}";
+      
+      first = false;
+    }
+    
+    file = root.openNextFile();
+  }
+  
+  json += "]";
+  root.close();
+  SD.end();
+  
+  server.send(200, "application/json", json);
 }
 
 void handleWiFiGet() {

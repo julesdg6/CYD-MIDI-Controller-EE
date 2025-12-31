@@ -169,13 +169,12 @@ void drawGridsMode() {
   int btnSpacing = 10;
   int btnY = SCREEN_HEIGHT - 60;
   int btnH = 50;
-  int btnW = (SCREEN_WIDTH - (6 * btnSpacing)) / 5;
+  int btnW = (SCREEN_WIDTH - (5 * btnSpacing)) / 4;  // 4 buttons instead of 5
   
   drawRoundButton(10, btnY, btnW, btnH, grids.playing ? "STOP" : "PLAY", THEME_PRIMARY, false);
   drawRoundButton(100, btnY, btnW, btnH, "BPM-", THEME_SECONDARY, false);
   drawRoundButton(190, btnY, btnW, btnH, "BPM+", THEME_SECONDARY, false);
   drawRoundButton(280, btnY, btnW, btnH, "RNDM", THEME_ACCENT, false);
-  drawRoundButton(370, btnY, btnW, btnH, "<<", THEME_TEXT_DIM, false);
 }
 
 void handleGridsMode() {
@@ -219,6 +218,15 @@ void handleGridsMode() {
   }
   
   if (touch.justPressed) {
+    // Check back button from header first
+    if (isButtonPressed(BACK_BTN_X, BACK_BTN_Y, BTN_BACK_W, BTN_BACK_H)) {
+      if (grids.playing) {
+        grids.playing = false;
+      }
+      exitToMenu();
+      return;
+    }
+    
     // Check X/Y pad (200x200 area)
     int padSize = 200;
     int padX = 240 - padSize/2;
@@ -239,29 +247,21 @@ void handleGridsMode() {
     int btnSpacing = 10;
     int btnY = SCREEN_HEIGHT - 60;
     int btnH = 50;
-    int btnW = (SCREEN_WIDTH - (6 * btnSpacing)) / 5;
-    
-    int btn1X = btnSpacing;
-    int btn2X = btnSpacing * 2 + btnW;
-    int btn3X = btnSpacing * 3 + btnW * 2;
-    int btn4X = btnSpacing * 4 + btnW * 3;
-    int btn5X = btnSpacing * 5 + btnW * 4;
+    int btnW = (SCREEN_WIDTH - (5 * btnSpacing)) / 4;  // 4 buttons instead of 5
     
     // Check button press states
     bool playPressed = touch.isPressed && isButtonPressed(10, btnY, btnW, btnH);
     bool bpmDownPressed = touch.isPressed && isButtonPressed(100, btnY, btnW, btnH);
     bool bpmUpPressed = touch.isPressed && isButtonPressed(190, btnY, btnW, btnH);
     bool randomPressed = touch.isPressed && isButtonPressed(280, btnY, btnW, btnH);
-    bool backPressed = touch.isPressed && isButtonPressed(370, btnY, btnW, btnH);
     
-    // Draw buttons with press feedback
-    drawRoundButton(10, btnY, btnW, btnH, grids.playing ? "STOP" : "PLAY", THEME_PRIMARY, playPressed);
-    drawRoundButton(100, btnY, btnW, btnH, "BPM-", THEME_SECONDARY, bpmDownPressed);
-    drawRoundButton(190, btnY, btnW, btnH, "BPM+", THEME_SECONDARY, bpmUpPressed);
-    drawRoundButton(280, btnY, btnW, btnH, "RNDM", THEME_ACCENT, randomPressed);
-    drawRoundButton(370, btnY, btnW, btnH, "<<", THEME_TEXT_DIM, backPressed);
-    
-    // PLAY/STOP
+    // Only redraw buttons when pressed
+    if (playPressed || bpmDownPressed || bpmUpPressed || randomPressed) {
+      drawRoundButton(10, btnY, btnW, btnH, grids.playing ? "STOP" : "PLAY", THEME_PRIMARY, playPressed);
+      drawRoundButton(100, btnY, btnW, btnH, "BPM-", THEME_SECONDARY, bpmDownPressed);
+      drawRoundButton(190, btnY, btnW, btnH, "BPM+", THEME_SECONDARY, bpmUpPressed);
+      drawRoundButton(280, btnY, btnW, btnH, "RNDM", THEME_ACCENT, randomPressed);
+    }
     if (playPressed) {
       grids.playing = !grids.playing;
       if (grids.playing) {
@@ -296,15 +296,6 @@ void handleGridsMode() {
       regenerateGridsPattern();
       drawGridsMode();
       Serial.printf("Random pattern: (%d, %d)\n", grids.patternX, grids.patternY);
-      return;
-    }
-    
-    // BACK
-    if (backPressed) {
-      if (grids.playing) {
-        grids.playing = false;
-      }
-      exitToMenu();
       return;
     }
     

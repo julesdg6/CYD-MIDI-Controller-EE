@@ -38,6 +38,7 @@ void handleFileUpload();
 void handleFileDownload();
 void handleFileDelete();
 void handleScreenshot();
+void handleScreenshots();
 void handleWiFiGet();
 void handleWiFiPost();
 void handleNotFound();

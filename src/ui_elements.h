@@ -270,21 +270,47 @@ inline void drawModuleHeader(String title, bool showBackButton) {
   tft.fillRect(0, 0, SCREEN_WIDTH, SCALED_H(45), THEME_SURFACE);
   tft.drawFastHLine(0, SCALED_H(45), SCREEN_WIDTH, THEME_PRIMARY);
   
-  // Draw title centered
-  tft.setTextColor(THEME_TEXT, THEME_SURFACE);
-  tft.drawCentreString(title, SCREEN_WIDTH/2, SCALED_H(13), 4);
+  int xPos = 0;
   
-  // Draw left icon (back button or settings on main menu)
+  // Draw left button (back or settings)
   if (showBackButton) {
-    drawBackIcon(SCALED_W(8), SCALED_H(8));
+    // Draw BACK button as text with border - positioned at screen edge for easy thumb access
+    int backBtnW = SCALED_W(65);
+    int backBtnH = SCALED_H(45);
+    int backBtnX = 0;
+    int backBtnY = 0;
+    
+    tft.drawRoundRect(backBtnX, backBtnY, backBtnW, backBtnH, 4, THEME_ERROR);
+    tft.setTextColor(THEME_ERROR, THEME_SURFACE);
+    tft.drawCentreString("BACK", backBtnX + backBtnW/2, backBtnY + backBtnH/2 - 8, 2);
+    
+    xPos = backBtnX + backBtnW + SCALED_W(5);
   } else {
+    // Draw settings cog icon
     drawSettingsIcon(SCALED_W(8), SCALED_H(8));
+    xPos = SCALED_W(35);
   }
   
-  // Draw right-side status icons
-  drawBluetoothIcon(SCREEN_WIDTH - SCALED_W(70), SCALED_H(8));  // Bluetooth at far right
-  drawSDCardIcon(SCREEN_WIDTH - SCALED_W(100), SCALED_H(10));     // SD card next to Bluetooth
-  drawBPMIndicator(SCREEN_WIDTH - SCALED_W(180), SCALED_H(17));   // BPM indicator on the left side
+  // Draw title next to back button (left-aligned)
+  tft.setTextColor(THEME_TEXT, THEME_SURFACE);
+  tft.drawString(title, xPos, SCALED_H(13), 4);
+  
+  // Draw BPM on the right side
+  extern GlobalState globalState;
+  extern MIDIClockSync midiClock;
+  
+  // Use MIDI clock BPM if receiving, otherwise use global BPM
+  float displayBPM = midiClock.isReceiving ? midiClock.calculatedBPM : globalState.bpm;
+  String bpmText = String((int)displayBPM);
+  
+  if (midiClock.isReceiving) {
+    bpmText += " [EXT]";
+    tft.setTextColor(THEME_WARNING, THEME_SURFACE);
+  } else {
+    tft.setTextColor(THEME_TEXT_DIM, THEME_SURFACE);
+  }
+  
+  tft.drawRightString(bpmText, SCREEN_WIDTH - SCALED_W(10), SCALED_H(17), 2);
 }
 
 #endif

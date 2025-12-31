@@ -157,7 +157,7 @@ void handlePhysicsDropMode() {
     return;
   }
   
-  // Draw control buttons with press feedback
+  // Check button presses
   bool modePressed = touch.isPressed && isButtonPressed(10, 200, 40, 25);
   bool clearPressed = touch.isPressed && isButtonPressed(60, 200, 40, 25);
   bool scalePressed = touch.isPressed && isButtonPressed(110, 200, 50, 25);
@@ -165,12 +165,17 @@ void handlePhysicsDropMode() {
   bool keyUpPressed = touch.isPressed && isButtonPressed(220, 200, 40, 25);
   bool octPressed = touch.isPressed && isButtonPressed(270, 200, 40, 25);
   
-  drawRoundButton(10, 200, 40, 25, platformMode ? "DROP" : "EDIT", THEME_WARNING, modePressed);
-  drawRoundButton(60, 200, 40, 25, "CLEAR", THEME_ERROR, clearPressed);
-  drawRoundButton(110, 200, 50, 25, "SCALE", THEME_ACCENT, scalePressed);
-  drawRoundButton(170, 200, 40, 25, "KEY-", THEME_SECONDARY, keyDownPressed);
-  drawRoundButton(220, 200, 40, 25, "KEY+", THEME_SECONDARY, keyUpPressed);
-  drawRoundButton(270, 200, 40, 25, "OCT", THEME_PRIMARY, octPressed);
+  // Draw control buttons with press feedback - only when pressed
+  bool anyPressed = modePressed || clearPressed || scalePressed || keyDownPressed || keyUpPressed || octPressed;
+  
+  if (anyPressed) {
+    drawRoundButton(10, 200, 40, 25, platformMode ? "DROP" : "EDIT", THEME_WARNING, modePressed);
+    drawRoundButton(60, 200, 40, 25, "CLEAR", THEME_ERROR, clearPressed);
+    drawRoundButton(110, 200, 50, 25, "SCALE", THEME_ACCENT, scalePressed);
+    drawRoundButton(170, 200, 40, 25, "KEY-", THEME_SECONDARY, keyDownPressed);
+    drawRoundButton(220, 200, 40, 25, "KEY+", THEME_SECONDARY, keyUpPressed);
+    drawRoundButton(270, 200, 40, 25, "OCT", THEME_PRIMARY, octPressed);
+  }
   
   if (touch.justPressed) {
     // Mode toggle

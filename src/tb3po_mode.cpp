@@ -338,10 +338,13 @@ void handleTB3POMode() {
   bool seedPressed = touch.isPressed && isButtonPressed(210, btnY, 90, btnH);
   bool scalePressed = touch.isPressed && isButtonPressed(310, btnY, 90, btnH);
   
-  drawRoundButton(10, btnY, 90, btnH, tb3po.playing ? "STOP" : "PLAY", THEME_PRIMARY, playPressed);
-  drawRoundButton(110, btnY, 90, btnH, "REGEN", THEME_SECONDARY, regenPressed);
-  drawRoundButton(210, btnY, 90, btnH, "SEED", THEME_ACCENT, seedPressed);
-  drawRoundButton(310, btnY, 90, btnH, "SCALE", THEME_SUCCESS, scalePressed);
+  // Only redraw buttons when pressed
+  if (playPressed || regenPressed || seedPressed || scalePressed) {
+    drawRoundButton(10, btnY, 90, btnH, tb3po.playing ? "STOP" : "PLAY", THEME_PRIMARY, playPressed);
+    drawRoundButton(110, btnY, 90, btnH, "REGEN", THEME_SECONDARY, regenPressed);
+    drawRoundButton(210, btnY, 90, btnH, "SEED", THEME_ACCENT, seedPressed);
+    drawRoundButton(310, btnY, 90, btnH, "SCALE", THEME_SUCCESS, scalePressed);
+  }
   
   // Handle playback timing
   if (tb3po.playing && tb3po.useInternalClock) {

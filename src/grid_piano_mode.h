@@ -65,7 +65,8 @@ void drawGridPianoMode() {
   
   // Octave controls
   int ctrlY = SCALED_H(235);
-  drawRoundButton(SCALED_W(10), ctrlY, BTN_SMALL_W, BTN_SMALL_H, "OCT-", THEME_SECONDARY, false);
+  int btnSpacing = SCALED_W(10);
+  drawRoundButton(btnSpacing, ctrlY, BTN_SMALL_W, BTN_SMALL_H, "OCT-", THEME_SECONDARY, false);
   drawRoundButton(SCALED_W(80), ctrlY, BTN_SMALL_W, BTN_SMALL_H, "OCT+", THEME_SECONDARY, false);
   
   // Octave display
@@ -130,8 +131,11 @@ void handleGridPianoMode() {
   bool octDownPressed = touch.isPressed && isButtonPressed(SCALED_W(10), ctrlY, BTN_SMALL_W, BTN_SMALL_H);
   bool octUpPressed = touch.isPressed && isButtonPressed(SCALED_W(80), ctrlY, BTN_SMALL_W, BTN_SMALL_H);
   
-  drawRoundButton(SCALED_W(10), ctrlY, BTN_SMALL_W, BTN_SMALL_H, "OCT-", THEME_SECONDARY, octDownPressed);
-  drawRoundButton(SCALED_W(80), ctrlY, BTN_SMALL_W, BTN_SMALL_H, "OCT+", THEME_SECONDARY, octUpPressed);
+  // Only redraw buttons when pressed
+  if (octDownPressed || octUpPressed) {
+    drawRoundButton(SCALED_W(10), ctrlY, BTN_SMALL_W, BTN_SMALL_H, "OCT-", THEME_SECONDARY, octDownPressed);
+    drawRoundButton(SCALED_W(80), ctrlY, BTN_SMALL_W, BTN_SMALL_H, "OCT+", THEME_SECONDARY, octUpPressed);
+  }
   
   if (touch.justPressed) {
     // Octave controls

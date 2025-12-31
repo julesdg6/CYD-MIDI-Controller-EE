@@ -421,12 +421,6 @@ void drawMorphMode() {
   tft.setTextColor(THEME_BG, TFT_ORANGE);
   tft.setCursor(278, 290);
   tft.print("CLEAR");
-  
-  // Back
-  tft.fillRoundRect(435, 5, 40, 30, 5, THEME_ACCENT);
-  tft.setTextColor(THEME_BG, THEME_ACCENT);
-  tft.setCursor(442, 12);
-  tft.print("BACK");
 }
 
 void updateMorphPlayback() {
@@ -541,8 +535,8 @@ void handleMorphMode() {
       drawMorphMode();
     }
     
-    // Back - larger touch area
-    else if (touchX >= 425 && touchX <= 475 && touchY >= 5 && touchY <= 40) {
+    // Back button
+    else if (isButtonPressed(BACK_BTN_X, BACK_BTN_Y, BTN_BACK_W, BTN_BACK_H)) {
       currentMode = MENU;
       return;
     }

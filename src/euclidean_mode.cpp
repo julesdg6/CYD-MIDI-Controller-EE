@@ -181,12 +181,6 @@ void drawEuclideanMode() {
   tft.setTextSize(1);
   tft.setCursor(258, bottomY + 13);
   tft.print("Re-Sync");
-  
-  // Back button
-  tft.fillRoundRect(435, 5, 40, 30, 5, THEME_ACCENT);
-  tft.setTextColor(THEME_BG, THEME_ACCENT);
-  tft.setCursor(442, 12);
-  tft.print("BACK");
 }
 
 void playEuclideanStep() {
@@ -313,8 +307,8 @@ void handleEuclideanMode() {
       }
     }
     
-    // Back button - larger touch area
-    if (touchX >= 425 && touchX <= 475 && touchY >= 5 && touchY <= 40) {
+    // Back button
+    if (isButtonPressed(BACK_BTN_X, BACK_BTN_Y, BTN_BACK_W, BTN_BACK_H)) {
       currentMode = MENU;
       return;
     }

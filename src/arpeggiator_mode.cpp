@@ -162,22 +162,26 @@ void handleArpeggiatorMode() {
   bool pianoOctDownPressed = touch.isPressed && isButtonPressed(100, y4, 25, 25);
   bool pianoOctUpPressed = touch.isPressed && isButtonPressed(130, y4, 25, 25);
   
-  // Draw buttons with press feedback
-  drawRoundButton(65, y1, 60, 25, patternNames[arp.pattern], THEME_WARNING, false);
-  drawRoundButton(130, y1, 25, 25, "<", THEME_SECONDARY, patternLeftPressed);
-  drawRoundButton(160, y1, 25, 25, ">", THEME_SECONDARY, patternRightPressed);
-  drawRoundButton(240, y1, 50, 25, chordTypeNames[arp.chordType], THEME_ACCENT, chordTypePressed);
+  // Draw buttons with press feedback - only redraw when pressed
+  bool anyPressed = patternLeftPressed || patternRightPressed || chordTypePressed || octDownPressed || octUpPressed || speedUpPressed || speedDownPressed || bpmDownPressed || bpmUpPressed || pianoOctDownPressed || pianoOctUpPressed;
   
-  drawRoundButton(90, y2, 25, 25, "-", THEME_SECONDARY, octDownPressed);
-  drawRoundButton(120, y2, 25, 25, "+", THEME_SECONDARY, octUpPressed);
-  drawRoundButton(240, y2, 25, 25, "+", THEME_SECONDARY, speedUpPressed);
-  drawRoundButton(270, y2, 25, 25, "-", THEME_SECONDARY, speedDownPressed);
-  
-  drawRoundButton(80, y3, 25, 25, "-", THEME_SECONDARY, bpmDownPressed);
-  drawRoundButton(110, y3, 25, 25, "+", THEME_SECONDARY, bpmUpPressed);
-  
-  drawRoundButton(100, y4, 25, 25, "-", THEME_SECONDARY, pianoOctDownPressed);
-  drawRoundButton(130, y4, 25, 25, "+", THEME_SECONDARY, pianoOctUpPressed);
+  if (anyPressed) {
+    drawRoundButton(65, y1, 60, 25, patternNames[arp.pattern], THEME_WARNING, false);
+    drawRoundButton(130, y1, 25, 25, "<", THEME_SECONDARY, patternLeftPressed);
+    drawRoundButton(160, y1, 25, 25, ">", THEME_SECONDARY, patternRightPressed);
+    drawRoundButton(240, y1, 50, 25, chordTypeNames[arp.chordType], THEME_ACCENT, chordTypePressed);
+    
+    drawRoundButton(90, y2, 25, 25, "-", THEME_SECONDARY, octDownPressed);
+    drawRoundButton(120, y2, 25, 25, "+", THEME_SECONDARY, octUpPressed);
+    drawRoundButton(240, y2, 25, 25, "+", THEME_SECONDARY, speedUpPressed);
+    drawRoundButton(270, y2, 25, 25, "-", THEME_SECONDARY, speedDownPressed);
+    
+    drawRoundButton(80, y3, 25, 25, "-", THEME_SECONDARY, bpmDownPressed);
+    drawRoundButton(110, y3, 25, 25, "+", THEME_SECONDARY, bpmUpPressed);
+    
+    drawRoundButton(100, y4, 25, 25, "-", THEME_SECONDARY, pianoOctDownPressed);
+    drawRoundButton(130, y4, 25, 25, "+", THEME_SECONDARY, pianoOctUpPressed);
+  }
   
   if (touch.justPressed) {
     int y = 55;

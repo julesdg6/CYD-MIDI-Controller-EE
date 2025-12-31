@@ -66,6 +66,7 @@ void drawAutoChordMode() {
   drawRoundButton(SCALED_W(240), ctrlY, BTN_MEDIUM_W, BTN_SMALL_H, "CLEAR", THEME_ERROR, false);
   
   // Status
+  int btnSpacing = SCALED_W(10);
   tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
   tft.drawString("Oct " + String(chordOctave), btnSpacing, SCREEN_HEIGHT - 15, 2);
   tft.drawString("Classic piano chords", SCREEN_WIDTH / 2 - 60, ctrlY - 25, 1);
@@ -122,10 +123,13 @@ void handleAutoChordMode() {
   bool scalePressed = touch.isPressed && isButtonPressed(SCALED_W(150), ctrlY, BTN_MEDIUM_W, BTN_SMALL_H);
   bool clearPressed = touch.isPressed && isButtonPressed(SCALED_W(240), ctrlY, BTN_MEDIUM_W, BTN_SMALL_H);
   
-  drawRoundButton(SCALED_W(10), ctrlY, BTN_SMALL_W, BTN_SMALL_H, "OCT-", THEME_SECONDARY, octDownPressed);
-  drawRoundButton(SCALED_W(80), ctrlY, BTN_SMALL_W, BTN_SMALL_H, "OCT+", THEME_SECONDARY, octUpPressed);
-  drawRoundButton(SCALED_W(150), ctrlY, BTN_MEDIUM_W, BTN_SMALL_H, "SCALE", THEME_ACCENT, scalePressed);
-  drawRoundButton(SCALED_W(240), ctrlY, BTN_MEDIUM_W, BTN_SMALL_H, "CLEAR", THEME_ERROR, clearPressed);
+  // Only redraw buttons when pressed
+  if (octDownPressed || octUpPressed || scalePressed || clearPressed) {
+    drawRoundButton(SCALED_W(10), ctrlY, BTN_SMALL_W, BTN_SMALL_H, "OCT-", THEME_SECONDARY, octDownPressed);
+    drawRoundButton(SCALED_W(80), ctrlY, BTN_SMALL_W, BTN_SMALL_H, "OCT+", THEME_SECONDARY, octUpPressed);
+    drawRoundButton(SCALED_W(150), ctrlY, BTN_MEDIUM_W, BTN_SMALL_H, "SCALE", THEME_ACCENT, scalePressed);
+    drawRoundButton(SCALED_W(240), ctrlY, BTN_MEDIUM_W, BTN_SMALL_H, "CLEAR", THEME_ERROR, clearPressed);
+  }
   
   if (touch.justPressed) {
     // Octave controls

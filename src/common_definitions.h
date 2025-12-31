@@ -61,17 +61,17 @@
 #define BTN_MEDIUM_H    SCALED_H(45)
 #define BTN_LARGE_W     SCALED_W(100)
 #define BTN_LARGE_H     SCALED_H(45)
-#define BTN_BACK_W      SCALED_W(70)
-#define BTN_BACK_H      SCALED_H(35)
+#define BTN_BACK_W      SCALED_W(65)
+#define BTN_BACK_H      SCALED_H(45)
 
 // Scaled spacing constants
 #define SPACING_SMALL   SCALED_W(5)
 #define SPACING_MEDIUM  SCALED_W(10)
 #define SPACING_LARGE   SCALED_W(20)
 
-// Back button position constants (top-left of header)
-#define BACK_BTN_X      SCALED_W(10)
-#define BACK_BTN_Y      SCALED_H(5)
+// Back button position constants (top-left of header) - full header height for reliability
+#define BACK_BTN_X      0
+#define BACK_BTN_Y      0
 
 // BLE MIDI UUIDs
 #define SERVICE_UUID        "03b80e5a-ede8-4b33-a751-6ce34ec4c700"

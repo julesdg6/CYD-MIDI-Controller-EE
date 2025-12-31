@@ -1,71 +1,82 @@
 #!/bin/bash
 
-# Download all screenshots from CYD-MIDI-Controller SD card
-# Usage: ./download_screenshots.sh <IP_ADDRESS>
-# Example: ./download_screenshots.sh 192.168.1.244
+# CYD MIDI Controller - Screenshot Downloader
+# Downloads all BMP screenshots from the device via the web interface
+# Usage: ./download_screenshots.sh [device_url] [output_dir]
+# Examples:
+#   ./download_screenshots.sh                          # Uses default http://192.168.4.1
+#   ./download_screenshots.sh http://192.168.1.100
+#   ./download_screenshots.sh http://192.168.1.100 my_screenshots
 
-if [ -z "$1" ]; then
-    echo "Usage: $0 <IP_ADDRESS>"
-    echo "Example: $0 192.168.1.244"
+DEVICE_URL="${1:-http://192.168.4.1}"
+OUTPUT_DIR="${2:-./screenshots}"
+
+# Remove trailing slash from URL
+DEVICE_URL="${DEVICE_URL%/}"
+
+# Create output directory
+mkdir -p "$OUTPUT_DIR"
+
+echo "🎹 CYD Screenshot Downloader"
+echo "Device: $DEVICE_URL"
+echo "Output: $OUTPUT_DIR"
+echo ""
+
+# Get list of screenshots
+RESPONSE=$(curl -s "$DEVICE_URL/screenshots" 2>/dev/null)
+
+if [ $? -ne 0 ]; then
+    echo "❌ Error: Could not connect to device at $DEVICE_URL"
+    echo "Make sure the device is powered on and connected to WiFi."
     exit 1
 fi
 
-IP=$1
-ASSETS_DIR="assets"
+# Check if response is valid JSON
+if ! echo "$RESPONSE" | jq empty 2>/dev/null; then
+    echo "❌ Error: Invalid response from device (expected JSON)"
+    exit 1
+fi
 
-# Create assets directory if it doesn't exist
-mkdir -p "$ASSETS_DIR"
+# Get number of screenshots
+COUNT=$(echo "$RESPONSE" | jq '. | length')
 
-echo "Downloading screenshots from http://$IP/screenshots/"
-echo "Saving to $ASSETS_DIR/"
+if [ "$COUNT" -eq 0 ]; then
+    echo "ℹ️  No screenshots found on device."
+    exit 0
+fi
+
+echo "Found $COUNT screenshot(s)"
 echo ""
 
-# List of all screenshot files (3 menus + 15 modes = 18 total)
-FILES=(
-    "00_main_menu.bmp"
-    "01_settings_menu.bmp"
-    "02_bluetooth_status.bmp"
-    "03_keyboard.bmp"
-    "04_sequencer.bmp"
-    "05_bouncing_ball.bmp"
-    "06_physics_drop.bmp"
-    "07_random_gen.bmp"
-    "08_xy_pad.bmp"
-    "09_arpeggiator.bmp"
-    "10_grid_piano.bmp"
-    "11_auto_chord.bmp"
-    "12_lfo.bmp"
-    "13_tb3po.bmp"
-    "14_grids.bmp"
-    "15_raga.bmp"
-    "16_euclidean.bmp"
-    "17_morph.bmp"
-)
-
-SUCCESS_COUNT=0
-FAIL_COUNT=0
-
-# Download each file
-for FILE in "${FILES[@]}"; do
-    URL="http://$IP/download?file=/screenshots/$FILE"
-    OUTPUT="$ASSETS_DIR/$FILE"
+# Download each screenshot
+echo "$RESPONSE" | jq -c '.[]' | while IFS= read -r line; do
+    # Parse JSON line
+    FILENAME=$(echo "$line" | jq -r '.name')
+    FILEPATH=$(echo "$line" | jq -r '.path')
     
-    echo -n "Downloading $FILE... "
+    OUTPUT_PATH="$OUTPUT_DIR/$FILENAME"
+    DOWNLOAD_URL="$DEVICE_URL/screenshot?file=$FILEPATH"
     
-    if wget -q -O "$OUTPUT" "$URL" 2>/dev/null; then
-        echo "✓"
-        SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
+    echo -n "⬇️  Downloading $FILENAME... "
+    
+    if curl -s "$DOWNLOAD_URL" -o "$OUTPUT_PATH" 2>/dev/null; then
+        FILE_SIZE=$(du -h "$OUTPUT_PATH" | cut -f1)
+        echo "✓ ($FILE_SIZE)"
     else
         echo "✗ Failed"
-        FAIL_COUNT=$((FAIL_COUNT + 1))
+        rm -f "$OUTPUT_PATH"
     fi
 done
 
+# Get final count
+ACTUAL_COUNT=$(ls -1 "$OUTPUT_DIR"/*.bmp 2>/dev/null | wc -l)
+
 echo ""
-echo "================================"
-echo "Downloaded: $SUCCESS_COUNT files"
-if [ $FAIL_COUNT -gt 0 ]; then
-    echo "Failed: $FAIL_COUNT files"
+echo "✅ Download complete: $ACTUAL_COUNT screenshot(s) downloaded"
+echo "📁 Location: $(cd "$OUTPUT_DIR" 2>/dev/null && pwd || echo "$OUTPUT_DIR")"
+
+if [ $ACTUAL_COUNT -gt 0 ]; then
+    exit 0
+else
+    exit 1
 fi
-echo "Location: $ASSETS_DIR/"
-echo "================================"

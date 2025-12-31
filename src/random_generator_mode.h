@@ -164,28 +164,32 @@ void handleRandomGeneratorMode() {
   bool subdivLeftPressed = touch.isPressed && isButtonPressed(190, y4, 25, 25);
   bool subdivRightPressed = touch.isPressed && isButtonPressed(220, y4, 25, 25);
   
-  // Draw buttons with press feedback
-  drawRoundButton(10, y1, 60, 25, randomGen.isPlaying ? "STOP" : "PLAY", 
-                 randomGen.isPlaying ? THEME_ERROR : THEME_SUCCESS, playPressed);
+  // Draw buttons with press feedback - only when pressed
+  bool anyPressed = playPressed || keyUpPressed || keyDownPressed || scalePressed || minOctDownPressed || minOctUpPressed || maxOctDownPressed || maxOctUpPressed || probDownPressed || probUpPressed || bpmDownPressed || bpmUpPressed || subdivLeftPressed || subdivRightPressed;
   
-  String rootName = getNoteNameFromMIDI(randomGen.rootNote);
-  drawRoundButton(110, y1, 35, 25, rootName, THEME_PRIMARY, false);
-  drawRoundButton(150, y1, 25, 25, "+", THEME_SECONDARY, keyUpPressed);
-  drawRoundButton(180, y1, 25, 25, "-", THEME_SECONDARY, keyDownPressed);
-  drawRoundButton(220, y1, 80, 25, scales[randomGen.scaleType].name, THEME_ACCENT, scalePressed);
-  
-  drawRoundButton(70, y2, 35, 25, "MIN-", THEME_SECONDARY, minOctDownPressed);
-  drawRoundButton(110, y2, 35, 25, "MIN+", THEME_SECONDARY, minOctUpPressed);
-  drawRoundButton(150, y2, 35, 25, "MAX-", THEME_SECONDARY, maxOctDownPressed);
-  drawRoundButton(190, y2, 35, 25, "MAX+", THEME_SECONDARY, maxOctUpPressed);
-  
-  drawRoundButton(85, y3, 25, 25, "-", THEME_SECONDARY, probDownPressed);
-  drawRoundButton(115, y3, 25, 25, "+", THEME_SECONDARY, probUpPressed);
-  
-  drawRoundButton(65, y4, 25, 25, "-", THEME_SECONDARY, bpmDownPressed);
-  drawRoundButton(95, y4, 25, 25, "+", THEME_SECONDARY, bpmUpPressed);
-  drawRoundButton(190, y4, 25, 25, "<", THEME_SECONDARY, subdivLeftPressed);
-  drawRoundButton(220, y4, 25, 25, ">", THEME_SECONDARY, subdivRightPressed);
+  if (anyPressed) {
+    drawRoundButton(10, y1, 60, 25, randomGen.isPlaying ? "STOP" : "PLAY", 
+                   randomGen.isPlaying ? THEME_ERROR : THEME_SUCCESS, playPressed);
+    
+    String rootName = getNoteNameFromMIDI(randomGen.rootNote);
+    drawRoundButton(110, y1, 35, 25, rootName, THEME_PRIMARY, false);
+    drawRoundButton(150, y1, 25, 25, "+", THEME_SECONDARY, keyUpPressed);
+    drawRoundButton(180, y1, 25, 25, "-", THEME_SECONDARY, keyDownPressed);
+    drawRoundButton(220, y1, 80, 25, scales[randomGen.scaleType].name, THEME_ACCENT, scalePressed);
+    
+    drawRoundButton(70, y2, 35, 25, "MIN-", THEME_SECONDARY, minOctDownPressed);
+    drawRoundButton(110, y2, 35, 25, "MIN+", THEME_SECONDARY, minOctUpPressed);
+    drawRoundButton(150, y2, 35, 25, "MAX-", THEME_SECONDARY, maxOctDownPressed);
+    drawRoundButton(190, y2, 35, 25, "MAX+", THEME_SECONDARY, maxOctUpPressed);
+    
+    drawRoundButton(85, y3, 25, 25, "-", THEME_SECONDARY, probDownPressed);
+    drawRoundButton(115, y3, 25, 25, "+", THEME_SECONDARY, probUpPressed);
+    
+    drawRoundButton(65, y4, 25, 25, "-", THEME_SECONDARY, bpmDownPressed);
+    drawRoundButton(95, y4, 25, 25, "+", THEME_SECONDARY, bpmUpPressed);
+    drawRoundButton(190, y4, 25, 25, "<", THEME_SECONDARY, subdivLeftPressed);
+    drawRoundButton(220, y4, 25, 25, ">", THEME_SECONDARY, subdivRightPressed);
+  }
   
   if (touch.justPressed) {
     int y = 55;

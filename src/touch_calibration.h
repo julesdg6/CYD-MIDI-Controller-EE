@@ -1,20 +1,15 @@
 #ifndef TOUCH_CALIBRATION_H
 #define TOUCH_CALIBRATION_H
 
-#include <EEPROM.h>
+#include <SD.h>
+#include <FS.h>
+#include <SPI.h>
 #include <TFT_eSPI.h>
 #include <XPT2046_Touchscreen.h>
 #include "common_definitions.h"
 
-#define EEPROM_SIZE 64
+#define CALIBRATION_FILE "/calibration.txt"
 #define CALIBRATION_MAGIC 0xCAFE
-#define EEPROM_ADDR_MAGIC 0
-#define EEPROM_ADDR_X_MIN 2
-#define EEPROM_ADDR_X_MAX 4
-#define EEPROM_ADDR_Y_MIN 6
-#define EEPROM_ADDR_Y_MAX 8
-#define EEPROM_ADDR_SWAP_XY 10
-#define EEPROM_ADDR_ROTATION 11
 
 struct TouchCalibration {
   uint16_t magic;
@@ -214,51 +209,16 @@ inline bool performCalibration() {
   return true;
 }
 
-inline void saveCalibration() {
-  EEPROM.writeUShort(EEPROM_ADDR_MAGIC, calibration.magic);
-  EEPROM.writeUShort(EEPROM_ADDR_X_MIN, calibration.x_min);
-  EEPROM.writeUShort(EEPROM_ADDR_X_MAX, calibration.x_max);
-  EEPROM.writeUShort(EEPROM_ADDR_Y_MIN, calibration.y_min);
-  EEPROM.writeUShort(EEPROM_ADDR_Y_MAX, calibration.y_max);
-  EEPROM.writeBool(EEPROM_ADDR_SWAP_XY, calibration.swap_xy);
-  EEPROM.writeByte(EEPROM_ADDR_ROTATION, calibration.rotation);
-  EEPROM.commit();
-}
-
-inline bool loadCalibration() {
-  uint16_t magic = EEPROM.readUShort(EEPROM_ADDR_MAGIC);
-  
-  if (magic != CALIBRATION_MAGIC) {
-    calibration.valid = false;
-    return false;
-  }
-  
-  calibration.magic = magic;
-  calibration.x_min = EEPROM.readUShort(EEPROM_ADDR_X_MIN);
-  calibration.x_max = EEPROM.readUShort(EEPROM_ADDR_X_MAX);
-  calibration.y_min = EEPROM.readUShort(EEPROM_ADDR_Y_MIN);
-  calibration.y_max = EEPROM.readUShort(EEPROM_ADDR_Y_MAX);
-  calibration.swap_xy = EEPROM.readBool(EEPROM_ADDR_SWAP_XY);
-  
-  // Read rotation, default to 0 if garbage value
-  uint8_t rot = EEPROM.readByte(EEPROM_ADDR_ROTATION);
-  calibration.rotation = (rot <= 3) ? rot : 0;
-  
-  calibration.valid = true;
-  
-  Serial.printf("[DEBUG] Raw EEPROM rotation byte: %d, using: %d\n", rot, calibration.rotation);
-  
-  return true;
-}
+// Forward declarations - implementations are in CYD-MIDI-Controller.ino
+void saveCalibration();
+bool loadCalibration();
 
 inline void initTouchCalibration() {
-  EEPROM.begin(EEPROM_SIZE);
-  
   if (!loadCalibration()) {
-    Serial.println("No calibration found, starting calibration...");
+    Serial.println("No calibration found on SD card, starting calibration...");
     if (performCalibration()) {
       saveCalibration();
-      Serial.println("Calibration saved!");
+      Serial.println("Calibration saved to SD card!");
     } else {
       Serial.println("Calibration failed, using defaults");
       // Set reasonable defaults for 3.5" CYD
@@ -270,21 +230,12 @@ inline void initTouchCalibration() {
       calibration.rotation = 0;
       calibration.valid = true;
     }
-  } else {
-    Serial.println("Loaded calibration from EEPROM");
-    Serial.printf("X: %d - %d, Y: %d - %d, Swap: %d, Rotation: %d\n", 
-                  calibration.x_min, calibration.x_max,
-                  calibration.y_min, calibration.y_max,
-                  calibration.swap_xy, calibration.rotation);
-    Serial.printf("[DEBUG] Calibration valid: %d\n", calibration.valid);
   }
 }
 
-inline void resetCalibration() {
-  EEPROM.writeUShort(EEPROM_ADDR_MAGIC, 0);
-  EEPROM.commit();
-  Serial.println("Calibration reset! Reboot to recalibrate.");
-}
+// Note: resetCalibration is called from the main .ino file
+// which has access to SD_CS #define and sdSPI object
+// We don't define it here to avoid linker issues
 
 // Test calibration by showing touch points
 inline void testCalibration() {

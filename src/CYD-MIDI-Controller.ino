@@ -85,6 +85,26 @@ TouchState touch;
 // App state
 AppMode currentMode = MENU;
 
+// Board-specific rotation helpers (align display + touch)
+uint8_t getDisplayRotation() {
+#if defined(SCREEN_WIDTH) && defined(SCREEN_HEIGHT)
+  // CYD 2.8" / 2.4" (ILI9341, 320x240 landscape desired)
+  #if (SCREEN_WIDTH == 320) && (SCREEN_HEIGHT == 240)
+    return 0;  // Portrait upright for ILI9341 small CYDs
+  #endif
+  // CYD 3.5" (ILI9488, 480x320)
+  #if (SCREEN_WIDTH == 480) && (SCREEN_HEIGHT == 320)
+    return 1;  // Landscape for ILI9488
+  #endif
+#endif
+  return 1;     // safe default landscape
+}
+
+uint8_t getTouchRotation() {
+  // Match display rotation so touch maps correctly
+  return getDisplayRotation();
+}
+
 // Forward declarations
 void drawMenu();
 void showSettingsMenu(bool interactive = true);
@@ -454,31 +474,24 @@ void cycleModesForScreenshots() {
   tft.fillRect(0, 120, SCREEN_WIDTH, 40, THEME_SURFACE);
   tft.setTextColor(THEME_PRIMARY, THEME_SURFACE);
   tft.drawCentreString("Capturing: MAIN MENU", SCREEN_WIDTH/2, 130, 4);
-  delay(200);
   drawMenu();
-  delay(200);
   Serial.println("[Screenshot 1/18] Capturing: 00_main_menu");
   saveScreenshot("00_main_menu");
-  delay(100);
   
   // Capture settings menu
   Serial.println("[Screenshot 2/18] Starting: SETTINGS");
   tft.fillRect(0, 120, SCREEN_WIDTH, 40, THEME_SURFACE);
   tft.setTextColor(THEME_PRIMARY, THEME_SURFACE);
   tft.drawCentreString("Capturing: SETTINGS", SCREEN_WIDTH/2, 130, 4);
-  delay(200);
   showSettingsMenu(false);
-  delay(200);
   Serial.println("[Screenshot 2/18] Capturing: 01_settings_menu");
   saveScreenshot("01_settings_menu");
-  delay(100);
   
   // Capture bluetooth menu
   Serial.println("[Screenshot 3/18] Starting: BLUETOOTH");
   tft.fillRect(0, 120, SCREEN_WIDTH, 40, THEME_SURFACE);
   tft.setTextColor(THEME_PRIMARY, THEME_SURFACE);
   tft.drawCentreString("Capturing: BLUETOOTH", SCREEN_WIDTH/2, 130, 4);
-  delay(200);
   tft.fillScreen(THEME_BG);
   tft.setTextColor(THEME_PRIMARY, THEME_BG);
   tft.drawCentreString("BLUETOOTH STATUS", SCREEN_WIDTH/2, 60, 4);
@@ -490,10 +503,8 @@ void cycleModesForScreenshots() {
   tft.drawCentreString("MAC: " + mac, SCREEN_WIDTH/2, 190, 2);
   int backBtnX2 = (SCREEN_WIDTH - 100) / 2;
   drawRoundButton(backBtnX2, SCREEN_HEIGHT - 80, 100, 35, "BACK", THEME_PRIMARY);
-  delay(200);
   Serial.println("[Screenshot 3/18] Capturing: 02_bluetooth_status");
   saveScreenshot("02_bluetooth_status");
-  delay(100);
   
   // Get WiFi IP address for URL display
   String ipAddr = WiFi.localIP().toString();
@@ -517,14 +528,11 @@ void cycleModesForScreenshots() {
     Serial.printf("[Screenshot %d/15] Starting: %s\n", i+1, modeNames[i].c_str());
     Serial.println(url);
     
-    delay(300);
-    
     // Enter mode
     Serial.printf("[Screenshot %d/15] Entering mode...\n", i+1);
     enterMode(modes[i]);
     
-    // Wait 500ms for mode to fully render, then capture
-    delay(500);
+    // Capture immediately after entering mode (no overlay text)
     Serial.printf("[Screenshot %d/15] Capturing: %s\n", i+1, fileNames[i].c_str());
     saveScreenshot(fileNames[i]);
     
@@ -545,7 +553,6 @@ void cycleModesForScreenshots() {
       } else {
         wasTouching = false;
       }
-      delay(50);
     }
     
     // Give visual feedback if skipped
@@ -553,7 +560,6 @@ void cycleModesForScreenshots() {
       tft.fillScreen(THEME_WARNING);
       tft.setTextColor(THEME_BG, THEME_WARNING);
       tft.drawCentreString("SKIPPED", SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 4);
-      delay(300);
     }
   }
   
@@ -566,7 +572,7 @@ void cycleModesForScreenshots() {
   tft.setTextColor(0x0000, THEME_SUCCESS);
   tft.drawCentreString("Menu + Settings + BLE + 15 Modes", SCREEN_WIDTH/2, 190, 1);
   tft.drawCentreString("Download via web interface", SCREEN_WIDTH/2, 210, 1);
-  delay(1000);
+  delay(100);
   
   // Return to menu
   exitToMenu();
@@ -621,11 +627,16 @@ void showSettingsMenu(bool interactive) {
     // Calibrate Touch
     int currentY = SCALED_H(50);
     if (isButtonPressed(btnX, currentY, btnW, btnH)) {
+      // Delete calibration file and reboot
+      tft.fillScreen(THEME_BG);
+      tft.setTextColor(THEME_PRIMARY, THEME_BG);
+      tft.drawCentreString("DELETING CALIBRATION", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 30, 4);
+      tft.setTextColor(THEME_TEXT, THEME_BG);
+      tft.drawCentreString("Rebooting to recalibrate...", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 10, 2);
+      delay(1000);
       resetCalibration();
-      if (performCalibration()) {
-        saveCalibration();
-      }
-      showSettingsMenu();
+      delay(500);
+      ESP.restart();
       return;
     }
     
@@ -677,6 +688,127 @@ void showSettingsMenu(bool interactive) {
   }
 }
 
+// Reset touch calibration by deleting SD card file
+void resetCalibration() {
+  if (!sdCardAvailable) {
+    Serial.println("Cannot reset calibration: SD card not available");
+    return;
+  }
+  
+  SD.end();
+  delay(100);
+  
+  if (!SD.begin(SD_CS, sdSPI)) {
+    Serial.println("SD card mount failed for calibration reset");
+    return;
+  }
+  
+  if (SD.exists(CALIBRATION_FILE)) {
+    SD.remove(CALIBRATION_FILE);
+    Serial.println("Calibration file deleted from SD card");
+  }
+  
+  SD.end();
+  Serial.println("Calibration reset! Rebooting to recalibrate...");
+}
+
+// Save calibration to SD card
+void saveCalibration() {
+  if (!sdCardAvailable) {
+    Serial.println("Cannot save calibration: SD card not available");
+    return;
+  }
+  
+  SD.end();
+  delay(100);
+  
+  if (!SD.begin(SD_CS, sdSPI)) {
+    Serial.println("SD card mount failed for calibration save");
+    return;
+  }
+  
+  File file = SD.open(CALIBRATION_FILE, FILE_WRITE);
+  if (!file) {
+    Serial.println("Failed to create calibration file");
+    SD.end();
+    return;
+  }
+  
+  file.println(calibration.magic);
+  file.println(calibration.x_min);
+  file.println(calibration.x_max);
+  file.println(calibration.y_min);
+  file.println(calibration.y_max);
+  file.println(calibration.swap_xy ? 1 : 0);
+  file.println(calibration.rotation);
+  file.close();
+  
+  Serial.println("Calibration saved to SD card");
+  SD.end();
+}
+
+// Load calibration from SD card
+bool loadCalibration() {
+  if (!sdCardAvailable) {
+    Serial.println("SD card not available for calibration load");
+    calibration.valid = false;
+    return false;
+  }
+  
+  SD.end();
+  delay(100);
+  
+  if (!SD.begin(SD_CS, sdSPI)) {
+    Serial.println("SD card mount failed for calibration load");
+    calibration.valid = false;
+    return false;
+  }
+  
+  if (!SD.exists(CALIBRATION_FILE)) {
+    Serial.println("Calibration file does not exist");
+    SD.end();
+    calibration.valid = false;
+    return false;
+  }
+  
+  File file = SD.open(CALIBRATION_FILE, FILE_READ);
+  if (!file) {
+    Serial.println("Failed to open calibration file");
+    SD.end();
+    calibration.valid = false;
+    return false;
+  }
+  
+  calibration.magic = file.parseInt();
+  if (calibration.magic != CALIBRATION_MAGIC) {
+    Serial.println("Invalid calibration magic number");
+    file.close();
+    SD.end();
+    calibration.valid = false;
+    return false;
+  }
+  
+  calibration.x_min = file.parseInt();
+  calibration.x_max = file.parseInt();
+  calibration.y_min = file.parseInt();
+  calibration.y_max = file.parseInt();
+  calibration.swap_xy = file.parseInt() == 1;
+  uint8_t rot = file.parseInt();
+  calibration.rotation = (rot <= 3) ? rot : 0;
+  
+  file.close();
+  SD.end();
+  
+  calibration.valid = true;
+  Serial.println("Loaded calibration from SD card");
+  Serial.printf("X: %d - %d, Y: %d - %d, Swap: %d, Rotation: %d\n", 
+                calibration.x_min, calibration.x_max,
+                calibration.y_min, calibration.y_max,
+                calibration.swap_xy, calibration.rotation);
+  
+  return true;
+}
+
 void setup() {
   Serial.begin(115200);
   delay(100);
@@ -690,11 +822,11 @@ void setup() {
   // Touch setup
   mySpi.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
   ts.begin();
-  ts.setRotation(1);
+  ts.setRotation(getTouchRotation());
   
   // Display setup
   tft.init();
-  tft.setRotation(1);
+  tft.setRotation(getDisplayRotation());
   pinMode(27, OUTPUT);
   digitalWrite(27, HIGH);
   
@@ -707,11 +839,11 @@ void setup() {
   tft.setTextColor(THEME_TEXT_DIM, THEME_BG);
   tft.drawCentreString("Initializing...", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 40, 2);
   
-  // Initialize touch calibration (will auto-calibrate if needed)
-  initTouchCalibration();
-  
-  // Initialize SD card (after display is ready)
+  // Initialize SD card first (needed for calibration file loading)
   initSDCard();
+  
+  // Initialize touch calibration (will auto-calibrate if needed, after SD is ready)
+  initTouchCalibration();
   
   // Re-initialize touch SPI after SD card to ensure it still works
   mySpi.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
@@ -797,39 +929,9 @@ void loop() {
   
   switch (currentMode) {
     case MENU:
-      // Handle taps first (including cog icon for settings)
+      // Handle taps (including cog icon for settings)
       if (touch.justPressed) {
         handleMenuTouch();
-        // Reset long press tracking when a tap is handled
-        longPressTriggered = false;
-      }
-      // Check for 3-second hold in top-left corner for calibration (backup method)
-      else if (touch.isPressed && touch.x < 40 && touch.y < 40 && !longPressTriggered) {
-        if (pressStartTime == 0) {
-          pressStartTime = millis();
-        } else if (millis() - pressStartTime > 3000) {
-          // Trigger calibration after 3 seconds of holding
-          longPressTriggered = true;
-          tft.fillScreen(THEME_WARNING);
-          tft.setTextColor(THEME_BG, THEME_WARNING);
-          tft.drawCentreString("CALIBRATION MODE", SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 20, 4);
-          delay(500);
-          resetCalibration();
-          if (performCalibration()) {
-            saveCalibration();
-          }
-          drawMenu();
-          // Wait for release
-          while (touch.isPressed) {
-            updateTouch();
-            delay(20);
-          }
-          pressStartTime = 0;
-        }
-      } else if (!touch.isPressed) {
-        // Reset on release
-        pressStartTime = 0;
-        longPressTriggered = false;
       }
       break;
     case KEYBOARD:
@@ -1142,8 +1244,8 @@ void drawAppGraphics(AppMode mode, int x, int y, int iconSize) {
 void handleMenuTouch() {
   Serial.printf("Menu touch at: (%d,%d)\n", touch.x, touch.y);
   
-  // Check settings icon touch (top left) - extra large touch area for easier access
-  if (isButtonPressed(SCALED_W(5), SCALED_H(5), SCALED_W(50), SCALED_H(50))) {
+  // Check settings icon touch (top left) - match back button size
+  if (isButtonPressed(SCALED_W(0), SCALED_H(0), SCALED_W(60), SCALED_H(45))) {
     Serial.println("Settings icon tapped!");
     showSettingsMenu();
     return;
